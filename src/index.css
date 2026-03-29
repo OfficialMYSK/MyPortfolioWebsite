@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 45% 8%;
+    --foreground: 0 0% 100%;
+    --primary: 190 90% 60%;
+    --primary-foreground: 210 45% 8%;
+    --border: 190 90% 60% / 0.25;
+    --radius: 9999px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+  }
+
+  /* Force typography and UI containers to sit ABOVE the bioluminescent particles */
+  section h1, section h2, section h3, section h4, section p, section span, section button, section .bio-glass, section .bio-glass-strong {
+    position: relative;
+    z-index: 20;
+  }
+
+  /* Make sections transparent so particles (at z-0) can be seen behind text but over the background */
+  main section {
+    background-color: transparent !important;
+  }
+
+  /* Handle the immersive atmospheric depth transition globally across the main wrapper */
+  main {
+    background: linear-gradient(180deg, #010a05 0%, #010a18 15%, #000d1c 40%, #000a14 70%, #000810 85%, #000205 100%);
+  }
+
+  /* Custom Stylish Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 128, 0.15);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 128, 0.4);
+  }
+}
+
+@layer components {
+  .bio-glass {
+    background: rgba(0, 30, 40, 0.25);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(0, 200, 255, 0.25);
+    box-shadow: 0 0 20px rgba(0, 200, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bio-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg,
+        rgba(0, 255, 255, 0.4) 0%, rgba(0, 255, 255, 0.15) 20%,
+        rgba(0, 255, 255, 0) 40%, rgba(0, 255, 255, 0) 60%,
+        rgba(0, 255, 255, 0.15) 80%, rgba(0, 255, 255, 0.4) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .bio-glass-strong {
+    background: rgba(0, 30, 40, 0.25);
+    backdrop-filter: blur(40px);
+    border: 1px solid rgba(0, 200, 255, 0.5);
+    box-shadow: 0 0 40px rgba(0, 200, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .bio-glass-strong::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(180deg,
+        rgba(0, 255, 255, 0.8) 0%, rgba(0, 255, 255, 0.3) 20%,
+        rgba(0, 255, 255, 0) 40%, rgba(0, 255, 255, 0) 60%,
+        rgba(0, 255, 255, 0.3) 80%, rgba(0, 255, 255, 0.8) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
