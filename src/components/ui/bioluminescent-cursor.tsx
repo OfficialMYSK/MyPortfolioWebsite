@@ -7,75 +7,114 @@ export function BioluminescentCursor() {
   useEffect(() => {
     if (!particlesEnabled) return; // Immediately disable heavy DOM injection
 
-    const scrollRoot = document.getElementById("scroll-root")
     const mainContainer = document.querySelector('main')
-    if (!scrollRoot || !mainContainer) return
+    if (!mainContainer) return
 
     let lastX = 0
     let lastY = 0
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Wait until user has scrolled past the Hero section
-      if (scrollRoot.scrollTop < window.innerHeight * 0.9) return
+      // Wait until user has scrolled past the Hero section (or if Hero is removed)
+      const hero = document.getElementById("cinematic-hero-section");
+      if (hero && hero.style.display !== "none" && window.scrollY < window.innerHeight * 0.9) {
+        return;
+      }
 
-      // Because we inject into <main> (which scrolls via scroll-root), 
-      // we must map the exact Y coordinates relative to the scroll depth!
-      const x = e.clientX
-      const y = e.clientY + scrollRoot.scrollTop
+      // Calculate coordinates relative to mainContainer
+      const mainRect = mainContainer.getBoundingClientRect();
+      const x = e.clientX - mainRect.left;
+      const y = e.clientY - mainRect.top;
 
-      const distance = Math.sqrt((x - lastX)**2 + (y - lastY)**2)
+      const dx = x - lastX
+      const dy = y - lastY
+      const distance = Math.sqrt(dx*dx + dy*dy)
       if (distance < 5) return // Flowing spawn threshold
       
       lastX = x
       lastY = y
 
-      // Smooth flowing algae physics
-      const particleCount = 2
+      // Physics: real bioluminescence flashes brightly on disturbance then fades.
+      // 1. Create a diffuse base "glow cloud" for ambient microscopic flashes
+      const cloud = document.createElement('div')
+      const cloudSize = Math.random() * 20 + 30 + (distance * 0.3) // Expand with speed
       
-      for(let i = 0; i < particleCount; i++) {
-        const el = document.createElement('div')
-        const size = Math.random() * 8 + 8 
+      cloud.className = "pointer-events-none absolute rounded-full mix-blend-screen z-[10]"
+      cloud.style.width = `${cloudSize}px`
+      cloud.style.height = `${cloudSize}px`
+      cloud.style.left = `${x}px`
+      cloud.style.top = `${y}px`
+      cloud.style.background = "radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, rgba(0, 150, 255, 0.05) 50%, rgba(0,0,0,0) 100%)"
+      cloud.style.transform = `translate(-50%, -50%) scale(0.8)`
+      cloud.style.opacity = Math.min(0.3 + (distance * 0.01), 0.6).toString()
+      cloud.style.willChange = "transform, opacity"
+      
+      const cloudDuration = Math.random() * 1000 + 800
+      cloud.style.transition = `all ${cloudDuration}ms cubic-bezier(0.25, 1, 0.5, 1)` // Snappy fade
+      
+      mainContainer.appendChild(cloud)
+      
+      // 2. Create tiny individual bright specks (dinoflagellates)
+      const speckCount = Math.floor(Math.random() * 4) + 3 // 3-6 specks per move (increased from 2-4)
+      
+      for(let i = 0; i < speckCount; i++) {
+        const speck = document.createElement('div')
+        const size = (Math.random() * 2 + 1.5) * 1.6 // Slightly increased size (~2.4-5.6px)
         
-        // z-[0] locks the algae into the bottom layer of the section, cleanly BEHIND typography (z-[20])
-        el.className = "pointer-events-none absolute rounded-full mix-blend-screen z-[0]"
-        el.style.width = `${size}px`
-        el.style.height = `${size}px`
-        el.style.left = `${x}px`
-        el.style.top = `${y}px`
+        speck.className = "pointer-events-none absolute rounded-full mix-blend-screen z-[10]"
+        speck.style.width = `${size}px`
+        speck.style.height = `${size}px`
+        speck.style.left = `${x}px`
+        speck.style.top = `${y}px`
         
-        // Deep soft liquid ocean glow
-        el.style.background = "rgba(100, 200, 255, 0.3)"
-        el.style.boxShadow = `0 0 ${size * 3}px ${size * 2}px rgba(0, 100, 255, 0.7)`
-        el.style.filter = "blur(4px)" 
+        // Randomly pick electric cyan/blue shades
+        const colors = [
+          "rgba(0, 255, 255, 0.9)",
+          "rgba(0, 220, 255, 0.8)",
+          "rgba(0, 180, 255, 0.8)"
+        ]
+        // Parse the color string for the box shadow replacement trick
+        const color = colors[Math.floor(Math.random() * colors.length)]
         
-        el.style.transform = `translate(-50%, -50%) scale(0.5)`
-        el.style.opacity = (Math.random() * 0.4 + 0.6).toString()
-        el.style.willChange = "transform, opacity, filter"
+        speck.style.background = color
+        speck.style.boxShadow = `0 0 ${size * 4}px ${size * 2}px ${color.replace(/[\d.]+\)$/, '0.6)')}`
         
-        const duration = Math.random() * 2000 + 1500
-        el.style.transition = `all ${duration}ms cubic-bezier(0.25, 1, 0.5, 1)`
+        speck.style.transform = `translate(-50%, -50%)`
+        speck.style.opacity = (Math.random() * 0.4 + 0.6).toString()
+        speck.style.willChange = "transform, opacity"
         
-        // Append directly to the main container
-        mainContainer.appendChild(el)
-        void el.offsetWidth // Force reflow
+        const speckDuration = Math.random() * 1500 + 1000
+        speck.style.transition = `all ${speckDuration}ms cubic-bezier(0.1, 0.9, 0.2, 1)`
         
-        // Minimal drift to keep them clustered exactly where the mouse touched the "water"
-        const randomX = (Math.random() - 0.5) * 15
-        const randomY = (Math.random() - 0.5) * 15 + 10 // Gentle upward float
-
-        el.style.transform = `translate(calc(-50% + ${randomX}px), calc(-50% - ${randomY}px)) scale(2.5)`
-        el.style.opacity = "0"
-        el.style.filter = "blur(12px)" // Fade out into haze
+        mainContainer.appendChild(speck)
+        
+        // Force reflow for animation
+        void speck.offsetWidth
+        
+        // Let the specks drift randomly away from the wake
+        const spreadX = dx * -0.2 + (Math.random() - 0.5) * 40
+        const spreadY = dy * -0.2 + (Math.random() - 0.5) * 40
+        
+        speck.style.transform = `translate(calc(-50% + ${spreadX}px), calc(-50% + ${spreadY}px)) scale(0.1)`
+        speck.style.opacity = "0"
         
         setTimeout(() => {
-          if (mainContainer.contains(el)) mainContainer.removeChild(el)
-        }, duration)
+          if (mainContainer.contains(speck)) mainContainer.removeChild(speck)
+        }, speckDuration)
       }
+      
+      // Force reflow for cloud animation
+      void cloud.offsetWidth
+      cloud.style.transform = `translate(-50%, -50%) scale(2)`
+      cloud.style.opacity = "0"
+      
+      setTimeout(() => {
+        if (mainContainer.contains(cloud)) mainContainer.removeChild(cloud)
+      }, cloudDuration)
     }
 
-    // Attach to scroll root
-    scrollRoot.addEventListener("mousemove", handleMouseMove)
-    return () => scrollRoot.removeEventListener("mousemove", handleMouseMove)
+    // Attach to window instead of scroll root to ensure we capture all mouse movement
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [particlesEnabled])
 
   // We no longer render a fixed overlay. Particles are injected directly into the DOM tree of `main`.

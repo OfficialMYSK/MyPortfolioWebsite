@@ -1,11 +1,7 @@
 import { CinematicLoader } from "@/components/layout/CinematicLoader"
 import { CinematicHero } from "@/components/sections/CinematicHero"
-import { ScrollingWhoIAm } from "@/components/sections/ScrollingWhoIAm"
 import { TransitionDive } from "@/components/sections/TransitionDive"
-import { CinematicProjects } from "@/components/sections/CinematicProjects"
-import { CinematicStrengths } from "@/components/sections/CinematicStrengths"
-import { CinematicPersonal } from "@/components/sections/CinematicPersonal"
-import { GallerySection } from "@/components/sections/GallerySection"
+import { DeepNarrativeExperience } from "@/components/sections/DeepNarrativeExperience"
 import { CinematicFooter } from "@/components/sections/CinematicFooter"
 import { BioluminescentCursor } from "@/components/ui/bioluminescent-cursor"
 import { ParticleProvider } from "@/context/ParticleContext"
@@ -14,19 +10,25 @@ import { ParticleToggle } from "@/components/ui/ParticleToggle"
 function App() {
   return (
     <ParticleProvider>
-      <div id="scroll-root" className="h-screen w-full overflow-y-scroll snap-y snap-mandatory scroll-smooth bg-[#010912] text-white selection:bg-primary/30 selection:text-white relative">
+      <div id="scroll-root" className="w-full relative bg-[#000000] text-white selection:bg-primary/30 selection:text-white">
+
+
         <CinematicLoader />
         <BioluminescentCursor />
         <ParticleToggle />
       
       <main className="w-full relative z-10">
         <CinematicHero />
-        <ScrollingWhoIAm />
         <TransitionDive />
-        <CinematicProjects />
-        <CinematicStrengths />
-        <CinematicPersonal />
-        <GallerySection />
+        
+        {/* Container for sections with a seamless depth gradient */}
+        <div className="relative w-full">
+          {/* Background gradient starting oceanic and becoming pitch black */}
+          <div className="absolute inset-0 z-[-1] pointer-events-none bg-[linear-gradient(to_bottom,#082229_0%,#061a1f_20%,#041216_50%,#02080a_80%,#000000_100%)]" />
+          <div className="relative z-10 w-full">
+            <DeepNarrativeExperience />
+          </div>
+        </div>
       </main>
       
       <CinematicFooter />

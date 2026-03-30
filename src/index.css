@@ -1,7 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=Fredoka:wght@400;500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .font-bubble {
+    font-family: 'Fredoka', sans-serif;
+  }
+}
 
 @layer base {
   :root {
@@ -11,6 +17,10 @@
     --primary-foreground: 210 45% 8%;
     --border: 190 90% 60% / 0.25;
     --radius: 9999px;
+  }
+  
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -36,7 +46,7 @@
 
   /* Handle the immersive atmospheric depth transition globally across the main wrapper */
   main {
-    background: linear-gradient(180deg, #010a05 0%, #010a18 15%, #000d1c 40%, #000a14 70%, #000810 85%, #000205 100%);
+    background: transparent;
   }
 
   /* Custom Stylish Scrollbar */
@@ -108,5 +118,32 @@
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
+  }
+
+  .liquid-bubble {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(0, 100, 255, 0.05));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 255, 255, 0.4);
+    box-shadow: 
+      inset 0 0 25px rgba(0, 240, 255, 0.4),
+      0 0 20px rgba(0, 240, 255, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Creating the glassy reflective glare on the top left of the bubbles */
+  .liquid-bubble::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 15%;
+    width: 35%;
+    height: 35%;
+    background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    filter: blur(2px);
+    opacity: 0.6;
+    pointer-events: none;
+    transform: rotate(-20deg);
   }
 }

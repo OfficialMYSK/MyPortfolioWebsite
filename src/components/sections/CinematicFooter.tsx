@@ -1,9 +1,21 @@
 import { motion } from "framer-motion"
+import { HLSVideo } from "@/components/ui/hls-video"
 
 export function CinematicFooter() {
   return (
-    <footer className="relative w-full h-screen min-h-screen snap-start bg-[#000205] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(0,100,255,0.05)_0%,transparent_60%)]"></div>
+    <footer className="relative w-full h-screen min-h-screen snap-start bg-[#000000] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+      <div className="absolute inset-0 z-0">
+        <HLSVideo 
+          src="https://stream.mux.com/2i1rBMfsSET9NaccgZvawPnkfXMw0102JpSDrwVgtLgEY.m3u8"
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          className="w-full h-full object-cover opacity-50 mix-blend-screen"
+        />
+        {/* Deep gradient overlay to blend into the darkness */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-black/40 to-[#000000]/80" />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}

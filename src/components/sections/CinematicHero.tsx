@@ -1,171 +1,159 @@
-import { motion } from "framer-motion"
-import { useEffect, useRef } from "react"
-import { useParticles } from "@/context/ParticleContext"
+import { motion, AnimatePresence } from "framer-motion"
+import { useEffect, useState } from "react"
 
 export function CinematicHero() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const trailContainerRef = useRef<HTMLDivElement>(null)
-  const { particlesEnabled } = useParticles()
+  const [isLocked, setIsLocked] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isFinished, setIsFinished] = useState(false);
 
+  // Lock logic on mount if we're at the top of the page
   useEffect(() => {
-    if (!particlesEnabled) return; // Instantly disable mouse trail DOM injection
+    if (window.scrollY < 50) {
+      setIsLocked(true);
+    }
+  }, []);
 
-    const section = sectionRef.current
-    const container = trailContainerRef.current
-    if (!section || !container) return
-
-    const asciiSnippets = ["1010", "0101", "0x01", "{...}", "/>", "init()", "10110.0", "null", "void", "0110", "1", "0", "int()"]
-    
-    let lastX = 0
-    let lastY = 0
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-
-      const distance = Math.sqrt((x - lastX)**2 + (y - lastY)**2)
-      if (distance < 8) return // Spawns a particle roughly every 8px for smoother trails
-      
-      lastX = x
-      lastY = y
-
-      const el = document.createElement('span')
-      el.className = "pointer-events-none absolute text-[#a0ffcc]/80 font-mono text-[10px] md:text-[12px] leading-none mix-blend-screen z-[50]"
-      el.innerText = asciiSnippets[Math.floor(Math.random() * asciiSnippets.length)]
-      
-      el.style.left = `${x}px`
-      el.style.top = `${y}px`
-      el.style.transform = `translate(-50%, -50%) scale(1)`
-      el.style.opacity = "1"
-      el.style.willChange = "transform, opacity, filter"
-      el.style.transition = "all 3000ms cubic-bezier(0.25, 1, 0.5, 1)"
-      
-      container.appendChild(el)
-      
-      // Force layout calculation (reflow) so the browser knows the initial state
-      // This absolutely prevents the browser from skipping the 3-second CSS transition!
-      void el.offsetWidth;
-      
-      // Apply the final state to trigger the exact 3-second transition
-      const randomX = (Math.random() - 0.5) * 30
-      el.style.transform = `translate(calc(-50% + ${randomX}px), -40px) scale(0.8)`
-      el.style.opacity = "0"
-      el.style.filter = "blur(6px)"
-
-      setTimeout(() => {
-        if (container.contains(el)) {
-          container.removeChild(el)
-        }
-      }, 3000)
+  // Control the body scroll behavior based on the lock state
+  useEffect(() => {
+    if (isLocked) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
     }
 
-    section.addEventListener("mousemove", handleMouseMove)
-    return () => section.removeEventListener("mousemove", handleMouseMove)
-  }, [particlesEnabled])
+    // Cleanup to ensure we don't accidentally permanently lock the page
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.body.style.overflow = "";
+    };
+  }, [isLocked]);
+
+  const simulateSpacebar = () => {
+    if (isAnimating || !isLocked) return;
+
+    const event = new KeyboardEvent('keydown', {
+      key: ' ',
+      code: 'Space',
+      keyCode: 32,
+      which: 32,
+      bubbles: true,
+      cancelable: true,
+      composed: true
+    });
+
+    window.dispatchEvent(event);
+
+    const viewer = document.querySelector('spline-viewer');
+    if (viewer) viewer.dispatchEvent(event);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Spacebar detection
+      if (e.code === 'Space' && isLocked && !isAnimating) {
+        setIsAnimating(true);
+
+        // Wait exactly 5 seconds for the Spline animation to complete
+        setTimeout(() => {
+          setIsLocked(false);
+          setIsAnimating(false);
+          
+          // Wait a brief moment to allow the overflow: hidden CSS to clear, then scroll down
+          setTimeout(() => {
+            window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+
+            // Wait 1 second for the smooth scroll to finish.
+            setTimeout(() => {
+              // Synchronously hide the element and reset scroll in the exact same event loop tick.
+              // This guarantees the browser won't render a visual frame where the scroll is at 0
+              // but the hero section still exists, eliminating the "glitch" flash.
+              const heroEl = document.getElementById("cinematic-hero-section");
+              if (heroEl) {
+                heroEl.style.display = "none";
+              }
+              window.scrollTo(0, 0);
+              
+              // Now update React state to officially unmount it from the virtual DOM
+              setIsFinished(true);
+            }, 1000);
+
+          }, 50);
+
+        }, 5000);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isLocked, isAnimating]);
+
+  if (isFinished) {
+    return null; // Entirely removes the hero section from the DOM after the full sequence
+  }
 
   return (
-    <section ref={sectionRef} className="relative w-full h-screen min-h-screen snap-start overflow-hidden flex flex-col justify-center items-center text-center px-6 bg-[#010a05]">
-      
-      {/* Container for the mouse trails */}
-      <div ref={trailContainerRef} className="absolute inset-0 pointer-events-none z-[4] overflow-hidden" />
-      
-      {/* Background Video Layer */}
-      <video
-        src="https://videos.pexels.com/video-files/856955/856955-hd_1920_1080_24fps.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0 opacity-[0.25] mix-blend-screen"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#010a05]/90 via-[#01140a]/30 to-[#010a05] z-[1]"></div>
+    <section id="cinematic-hero-section" className="relative w-full h-screen snap-start overflow-hidden flex flex-col justify-center items-center text-center px-6 bg-[#000000]">
 
-      {/* Bio-Tech HUD / Line Art Overlay mimicking the reference image */}
-      <div className="absolute inset-0 z-[2] opacity-70 pointer-events-none">
-        <svg className="w-full h-full" overflow="visible">
-          {/* Tech Data Nodes & Lines */}
-          <motion.g 
-            initial={{ opacity: 0 }} 
-            whileInView={{ opacity: 1 }} 
-            transition={{ duration: 3, ease: "easeOut" }}
-          >
-             {/* Left side node map */}
-             <circle cx="20%" cy="45%" r="4" fill="transparent" stroke="white" strokeWidth="1" />
-             <circle cx="20%" cy="45%" r="8" fill="transparent" stroke="white" strokeWidth="0.5" />
-             <line x1="0" y1="35%" x2="20%" y2="45%" stroke="white" strokeWidth="0.5" className="opacity-60" />
-             <line x1="15%" y1="60%" x2="20%" y2="45%" stroke="white" strokeWidth="0.5" className="opacity-60" />
-             <line x1="20%" y1="45%" x2="35%" y2="55%" stroke="white" strokeWidth="0.5" className="opacity-60" />
-             <line x1="20%" y1="45%" x2="20%" y2="65%" stroke="white" strokeWidth="0.5" className="opacity-60" />
-             <line x1="20%" y1="65%" x2="40%" y2="85%" stroke="white" strokeWidth="0.5" className="opacity-40" />
-             <circle cx="20%" cy="65%" r="3" fill="transparent" stroke="white" strokeWidth="1" />
-             
-             {/* Flowing bezier curves wrapping around the center */}
-             <path d="M 20% 45% Q 40% 30% 60% 50% T 85% 70%" fill="transparent" stroke="white" strokeWidth="0.5" className="opacity-80" />
-             <path d="M 35% 55% Q 55% 65% 75% 55% T 95% 80%" fill="transparent" stroke="white" strokeWidth="0.5" className="opacity-80" />
-             <path d="M 15% 60% Q 30% 80% 50% 85% T 90% 70%" fill="transparent" stroke="white" strokeWidth="0.5" className="opacity-50" />
-             
-             {/* Right side data clusters */}
-             <circle cx="60%" cy="50%" r="5" fill="transparent" stroke="white" strokeWidth="0.5" />
-             <circle cx="62%" cy="48%" r="2" fill="white" />
-             <circle cx="75%" cy="55%" r="4" fill="transparent" stroke="white" strokeWidth="1" />
-             <circle cx="85%" cy="70%" r="6" fill="transparent" stroke="white" strokeWidth="0.5" />
-          </motion.g>
-        </svg>
-
-        {/* Scattered HUD Text mimicking the dataset strings and code snippets */}
-        <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 2, delay: 1 }} className="absolute inset-0 font-mono text-[9px] md:text-[10px] text-white/80 overflow-hidden">
-           <div className="absolute top-[34%] left-[5%] flex flex-col gap-1 tracking-widest">
-             <span>101375.0</span><span>101323.0</span><span>101290.0</span>
-           </div>
-           
-           <div className="absolute top-[43%] left-[17%] tracking-wider">1334164.0</div>
-           
-           <div className="absolute top-[66%] left-[18%] border border-white/40 px-1 py-[1px] tracking-wide">1013840.0</div>
-           
-           <div className="absolute top-[52%] left-[40%] flex flex-col gap-0 opacity-90 leading-[1.2]">
-             <span>int main()&#123;for(;;)&#125;</span>
-             <span className="ml-4">int main()&#123;for(;;)&#125;</span>
-             <span>int main()&#123;for(;;)&#125;</span>
-           </div>
-           
-           <div className="absolute top-[82%] left-[35%] border border-white/40 px-1 py-[1px]">9414596.0</div>
-           <div className="absolute top-[78%] left-[65%] border border-white/40 px-1 py-[1px]">1255317.0</div>
-           <div className="absolute top-[88%] left-[78%] border border-white/40 px-1 py-[1px]">1013478.0</div>
-           
-           <div className="absolute top-[20%] left-[45%] w-[80px] h-[80px] opacity-70">
-             {/* Dot matrix constellation roughly mapped */}
-             {[...Array(25)].map((_, i) => (
-                <div key={i} className="absolute w-[2px] h-[2px] bg-white rounded-full shadow-[0_0_2px_#fff]" style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%` }} />
-             ))}
-           </div>
-        </motion.div>
+      {/* Spline 3D Scene */}
+      <div className="absolute inset-0 z-0">
+        <spline-viewer loading-anim-type="none" url="https://prod.spline.design/1LlT-W3FlyC737pP/scene.splinecode">
+          <img src="data:image/png;base64,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" alt="Spline preview" style={{ width: "100%", height: "100%" }} />
+        </spline-viewer>
       </div>
 
-      {/* Main Content */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 2, ease: "easeOut", delay: 0.2 }}
-        className="relative z-10 max-w-4xl"
-      >
-        <p className="text-[#a0ffcc]/90 font-mono font-light text-xs uppercase tracking-[0.4em] mb-4 md:mb-6">
-          System // The story of
-        </p>
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading italic text-white tracking-tight leading-[0.9] mb-8 drop-shadow-[0_0_40px_rgba(0,255,100,0.15)]">
-          A Creative Technology Designer
-        </h1>
-        <motion.p 
-          className="text-white/70 font-body font-light text-base md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed"
-          initial={{ opacity: 0, filter: "blur(5px)" }}
-          whileInView={{ opacity: 1, filter: "blur(0px)" }}
-          viewport={{ once: true }}
-          transition={{ duration: 1.5, delay: 1 }}
-        >
-          I am a design student focused on creative technology, media design, and sensory experiences. I enjoy building interactive projects, experimenting with technology, and creating work that people can actually feel instead of just see.
-        </motion.p>
-      </motion.div>
+      {/* Bottom Gradient Transition to Black */}
+      <div className="absolute bottom-0 left-0 right-0 h-[20vh] bg-gradient-to-t from-black to-transparent z-10 pointer-events-none" />
+
+
+      {/* Centered Interactive Trigger */}
+      <AnimatePresence>
+        {isLocked && !isAnimating && !isFinished && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none"
+          >
+            <div className="flex flex-col items-center gap-8 pointer-events-auto">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 1 }}
+                className="text-white/80 text-sm tracking-[0.4em] uppercase font-mono drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+              >
+                Initiate Experience
+              </motion.div>
+
+              <motion.button
+                onClick={simulateSpacebar}
+                whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
+                whileTap={{ scale: 0.95, y: 8 }}
+                animate={{ y: [0, -8, 0] }}
+                transition={{
+                  y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                  scale: { type: "spring", stiffness: 400, damping: 17 },
+                }}
+                className="group relative px-14 py-6 bg-white/10 border border-white/30 backdrop-blur-md rounded-2xl cursor-pointer shadow-[0_0_60px_rgba(255,255,255,0.15)] overflow-hidden"
+              >
+                {/* Glossy highlight line */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/70 to-transparent opacity-80" />
+
+                <div className="flex flex-col items-center gap-1 relative z-10">
+                  <span className="text-white font-mono text-2xl tracking-[0.6em] uppercase font-bold drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
+                    SPACE
+                  </span>
+                  <span className="text-white/60 font-mono text-[10px] tracking-[0.25em] uppercase mt-2">
+                    Press key or tap
+                  </span>
+                </div>
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

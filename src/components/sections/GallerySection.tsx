@@ -2,7 +2,7 @@ import { motion } from "framer-motion"
 
 export function GallerySection() {
   return (
-    <section className="relative w-full min-h-screen snap-start py-32 px-6 md:px-12 bg-[#000810] flex flex-col items-center justify-center">
+    <section className="relative w-full min-h-screen snap-start py-32 px-6 md:px-12 bg-transparent flex flex-col items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

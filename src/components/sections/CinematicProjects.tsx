@@ -9,7 +9,7 @@ export function CinematicProjects() {
   ]
 
   return (
-    <section className="relative w-full bg-[#000d1c]">
+    <section className="relative w-full bg-transparent">
       <div className="min-h-screen snap-start flex flex-col items-center justify-center px-6 pt-32 pb-16">
         <motion.p 
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 1.5 }}

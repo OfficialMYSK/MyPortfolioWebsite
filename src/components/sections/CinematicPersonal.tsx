@@ -9,7 +9,7 @@ export function CinematicPersonal() {
   ]
 
   return (
-    <section className="relative w-full min-h-screen snap-start flex flex-col justify-center bg-[#000a14] py-32 px-6">
+    <section className="relative w-full min-h-screen snap-start flex flex-col justify-center bg-transparent py-32 px-6">
       <div className="max-w-6xl mx-auto w-full">
         <motion.div
            initial={{ opacity: 0, filter: "blur(10px)" }}

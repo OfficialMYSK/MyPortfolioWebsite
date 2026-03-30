@@ -11,7 +11,7 @@ export function CinematicStrengths() {
   ]
 
   return (
-    <section className="relative w-full min-h-screen snap-start py-32 px-6 md:px-16 lg:px-24 bg-[#000d1c] flex flex-col justify-center text-center md:text-left">
+    <section className="relative w-full min-h-screen snap-start py-32 px-6 md:px-16 lg:px-24 bg-transparent flex flex-col justify-center text-center md:text-left">
       <div className="max-w-7xl mx-auto w-full">
         <motion.div
            initial={{ opacity: 0, y: 20 }}

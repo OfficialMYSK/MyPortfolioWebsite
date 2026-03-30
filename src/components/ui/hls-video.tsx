@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 
 interface HLSVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string
+  playbackRate?: number
 }
 
 export function HLSVideo({ src, className, ...props }: HLSVideoProps) {
@@ -21,6 +22,10 @@ export function HLSVideo({ src, className, ...props }: HLSVideoProps) {
       hls.attachMedia(video)
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = src
+    }
+
+    if (props.playbackRate) {
+      video.playbackRate = props.playbackRate;
     }
 
     return () => {
