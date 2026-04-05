@@ -3,48 +3,56 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring } from "fram
 
 // ==========================
 // AMBIENT PARTICLES
-// Pre-generating static parameters so they don't jump around on React re-renders.
 // ==========================
 const AMBIENT_PARTICLES = Array.from({ length: 45 }).map(() => ({
   id: Math.random().toString(36).substring(7),
   left: `${Math.random() * 100}%`,
-  size: Math.random() * 3 + 1, // 1px to 4px
-  duration: Math.random() * 30 + 15, // 15s to 45s float time
-  delay: Math.random() * -45, // Spread them out so they are already flowing
+  size: Math.random() * 3 + 1,
+  duration: Math.random() * 30 + 15,
+  delay: Math.random() * -45,
   opacity: Math.random() * 0.3 + 0.05,
-  wobbleOffset: Math.random() * 60 - 30, // Random drift left/right
+  wobbleOffset: Math.random() * 60 - 30,
 }))
 
-// A purely visual component that renders ambient water particles drifting upwards continuously 
 function AmbientParticleLayer() {
   return (
     <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden mix-blend-screen">
       {AMBIENT_PARTICLES.map((p) => (
-        <motion.div
+        <div
           key={p.id}
-          className="absolute rounded-full bg-cyan-200 shadow-[0_0_8px_1px_rgba(0,255,255,0.3)]"
-          style={{ left: p.left, width: p.size, height: p.size, opacity: p.opacity }}
-          animate={{
-            y: ["100vh", "-10vh"],
-            x: [0, p.wobbleOffset, 0, -p.wobbleOffset, 0],
-          }}
-          transition={{
-            y: {
-              duration: p.duration,
-              repeat: Infinity,
-              ease: "linear",
-              delay: p.delay,
-            },
-            x: {
-              duration: p.duration * 0.4,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: p.delay,
-            }
-          }}
+          className="ambient-particle"
+          style={{ 
+            "--dur": p.duration + "s", 
+            "--del": p.delay + "s", 
+            "--wobble": p.wobbleOffset + "px", 
+            "--x": p.left, 
+            "--size": p.size + "px", 
+            "--op": p.opacity 
+          } as React.CSSProperties}
         />
       ))}
     </div>
+  )
+}
+
+function PlaceholderImageSet({ smoothScroll, triggers, images, zIndex = 0 }: any) {
+  const opacity = useTransform(smoothScroll, triggers.pos, triggers.opacity)
+  const scale = useTransform(smoothScroll, triggers.pos, triggers.scale)
+  const filter = useTransform(smoothScroll, triggers.pos, triggers.filter)
+
+  return (
+    <motion.div style={{ opacity, scale, filter, zIndex }} className="absolute inset-0 pointer-events-none flex items-center justify-center -translate-y-[5%]">
+      {images.map((img: any, i: number) => (
+        <motion.img
+          key={i}
+          src={img.src}
+          className={`absolute object-cover rounded-xl shadow-2xl ${img.className}`}
+          style={{ ...img.style }}
+          animate={img.animate}
+          transition={{ repeat: Infinity, ease: "easeInOut", ...img.transition }}
+        />
+      ))}
+    </motion.div>
   )
 }
 
@@ -59,86 +67,190 @@ export function DeepNarrativeExperience() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
-  // Track the scroll over an extremely tall container to stretch out transitions
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"]
   })
 
-  // Global mouse tracking for interactivity
+  // Smooth out the scroll progress globally to add incredible "weight" and ease in/ease out natively.
+  // This physically rounds off human scroll wheel ticks into smooth drifting momentum.
+  const smoothScroll = useSpring(scrollYProgress, { stiffness: 40, damping: 20, restDelta: 0.0001 })
+
+  // ==========================
+  // MATHEMATICAL SEQUENCE OFFSETS
+  // Explicitly creating "empty space gaps" (e.g. from 0.11 to 0.15) where the screen is just black water.
+  // Re-balanced to provide equal hold-time to the final Feel section
+  // format: [fadeInStart, FullyVisibleStart, FullyVisibleEnd, FadeOutEnd]
+  // ==========================
+  const t0 = [0.00, 0.02, 0.08, 0.11] // Feeling
+  const t1 = [0.15, 0.17, 0.23, 0.26] // Explore
+  const t2 = [0.30, 0.32, 0.38, 0.41] // Emotion
+  const t3 = [0.45, 0.47, 0.53, 0.56] // Enjoyment
+  const t4 = [0.60, 0.62, 0.68, 0.71] // Immersion
+  const t5 = [0.75, 0.77, 0.83, 0.86] // Experiences
+  const t6 = [0.90, 0.92, 0.98, 1.00] // Feel
+
+  // MOUSE PARALLAX
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
-  
   const smoothMouseX = useSpring(mouseX, { stiffness: 40, damping: 25 })
   const smoothMouseY = useSpring(mouseY, { stiffness: 40, damping: 25 })
 
-  // Fluid displacement mapped based on screen size approximations
   const displaceX1 = useTransform(smoothMouseX, [0, windowSize.width], [30, -30])
   const displaceY1 = useTransform(smoothMouseY, [0, windowSize.height], [30, -30])
-  
   const displaceX2 = useTransform(smoothMouseX, [0, windowSize.width], [-40, 40])
   const displaceY2 = useTransform(smoothMouseY, [0, windowSize.height], [-40, 40])
-  
   const displaceX3 = useTransform(smoothMouseX, [0, windowSize.width], [25, -25])
   const displaceY3 = useTransform(smoothMouseY, [0, windowSize.height], [-25, 25])
-  
   const displaceX4 = useTransform(smoothMouseX, [0, windowSize.width], [-35, 35])
-  const displaceY4 = useTransform(smoothMouseY, [0, windowSize.height], [35, -35])
-
-  // NEW: 3D perspective rotation mapped to mouse!
+  
   const rotateX = useTransform(smoothMouseY, [0, windowSize.height], [15, -15])
   const rotateY = useTransform(smoothMouseX, [0, windowSize.width], [-15, 15])
 
-  // ==========================
-  // LAYER 1: Entering the Water
-  // ==========================
-  const layer1Opacity = useTransform(scrollYProgress, [0, 0.05, 0.22, 0.28], [0, 1, 1, 0])
-  const layer1Y = useTransform(scrollYProgress, [0, 0.28], ["5%", "-5%"])
+  // TEXT LAYERS mapped to the `smoothScroll` physics tracker!
+  const layer1Opacity = useTransform(smoothScroll, t0, [0, 1, 1, 0])
+  const layer1Y = useTransform(smoothScroll, t0, ["5%", "0%", "0%", "-5%"])
+
+  const layer2Opacity = useTransform(smoothScroll, t1, [0, 1, 1, 0])
+  const depthOverlayOpacity = useTransform(smoothScroll, [0, 1], [0, 0.98])
+
+  // Bubbles flow in and out with Layer 2
+  const word1Y = useTransform(smoothScroll, t1, ["10%", "0%", "0%", "-10%"])
+  const word2Y = useTransform(smoothScroll, t1, ["-10%", "0%", "0%", "10%"])
+  const word3Y = useTransform(smoothScroll, t1, ["15%", "0%", "0%", "-15%"])
+  const word4Y = useTransform(smoothScroll, t1, ["5%", "0%", "0%", "-5%"])
+  const word5Y = useTransform(smoothScroll, t1, ["-5%", "0%", "0%", "5%"])
+
+  // Layer 3 background block wrapper (stays somewhat visible through Emotion -> Experiences)
+  const layer3Opacity = useTransform(smoothScroll, [t2[0], t2[1], t5[2], t5[3]], [0, 1, 1, 0])
+
+  const wordEmotionOp = useTransform(smoothScroll, t2, [0, 1, 1, 0])
+  const wordEmotionY = useTransform(smoothScroll, t2, ["60px", "0px", "0px", "-60px"])
+
+  const wordEnjoymentOp = useTransform(smoothScroll, t3, [0, 1, 1, 0])
+  const wordEnjoymentY = useTransform(smoothScroll, t3, ["60px", "0px", "0px", "-60px"])
+
+  const wordImmersionOp = useTransform(smoothScroll, t4, [0, 1, 1, 0])
+  const wordImmersionY = useTransform(smoothScroll, t4, ["60px", "0px", "0px", "-60px"])
+
+  const wordExperiencesOp = useTransform(smoothScroll, t5, [0, 1, 1, 0])
+  const wordExperiencesY = useTransform(smoothScroll, t5, ["60px", "0px", "0px", "-60px"])
+
+  const layer4Opacity = useTransform(smoothScroll, t6, [0, 1, 1, 1])
+  const layer4Scale = useTransform(smoothScroll, t6, [0.95, 1, 1, 1])
+
 
   // ==========================
-  // LAYER 2: Ideas form
+  // PLACEHOLDER IMAGE CONFIGS
   // ==========================
-  const layer2Opacity = useTransform(scrollYProgress, [0.32, 0.36, 0.54, 0.58], [0, 1, 1, 0])
-  const depthOverlayOpacity = useTransform(scrollYProgress, [0.15, 0.4, 0.7, 0.9], [0, 0.4, 0.6, 0.95])
+  const getRandImg = (seed: number) => `https://picsum.photos/seed/${seed}/400/400`
 
-  // Macro floating tracking (scroll-based)
-  const word1Y = useTransform(scrollYProgress, [0.3, 0.6], ["20%", "-20%"])
-  const word2Y = useTransform(scrollYProgress, [0.3, 0.6], ["-5%", "-15%"])
-  const word3Y = useTransform(scrollYProgress, [0.3, 0.6], ["15%", "-10%"])
-  const word4Y = useTransform(scrollYProgress, [0.3, 0.6], ["5%", "-25%"])
-  const word5Y = useTransform(scrollYProgress, [0.3, 0.6], ["-10%", "5%"])
+  const configFeeling = {
+    pos: t0,
+    opacity: [0, 0.15, 0.15, 0],
+    scale: [0.3, 0.5, 0.5, 0.2],
+    filter: ["blur(15px)", "blur(3px)", "blur(3px)", "blur(15px)"],
+    images: [
+      { src: getRandImg(101), className: "w-32 h-32 md:w-48 md:h-48", style: { left: "10%", top: "20%" }, animate: { y: [-10, 10, -10] }, transition: { duration: 8 } },
+      { src: getRandImg(102), className: "w-40 h-40 md:w-56 md:h-56", style: { right: "15%", top: "30%" }, animate: { y: [15, -15, 15] }, transition: { duration: 10 } },
+      { src: getRandImg(103), className: "w-24 h-24 md:w-36 md:h-36", style: { left: "30%", bottom: "25%" }, animate: { y: [-20, 20, -20] }, transition: { duration: 12 } },
+      { src: getRandImg(104), className: "w-48 h-48 md:w-64 md:h-64", style: { right: "25%", bottom: "15%" }, animate: { y: [10, -10, 10] }, transition: { duration: 9 } }
+    ]
+  }
 
-  // ==========================
-  // LAYER 3: Design Process
-  // ==========================
-  const layer3Opacity = useTransform(scrollYProgress, [0.60, 0.64, 0.82, 0.86], [0, 1, 1, 0])
-  
-  const wordEmotionOp = useTransform(scrollYProgress, [0.62, 0.64, 0.66, 0.68], [0, 1, 1, 0])
-  const wordEmotionY = useTransform(scrollYProgress, [0.62, 0.64, 0.66, 0.68], ["60px", "0px", "0px", "-60px"])
-  
-  const wordCalmOp = useTransform(scrollYProgress, [0.67, 0.69, 0.71, 0.73], [0, 1, 1, 0])
-  const wordCalmY = useTransform(scrollYProgress, [0.67, 0.69, 0.71, 0.73], ["60px", "0px", "0px", "-60px"])
+  const configExplore = {
+    pos: t1,
+    opacity: [0, 0.3, 0.3, 0],
+    scale: [0.6, 0.9, 0.9, 0.5],
+    filter: ["blur(20px)", "blur(4px)", "blur(4px)", "blur(20px)"],
+    images: [
+      { src: getRandImg(201), className: "w-32 h-32 md:w-40 md:h-40", style: { left: "8%", top: "15%", transform: "rotate(-4deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 8 } },
+      { src: getRandImg(202), className: "w-48 h-48 md:w-56 md:h-56", style: { right: "12%", top: "10%", transform: "rotate(3deg)" }, animate: { y: [5, -5, 5] }, transition: { duration: 9 } },
+      { src: getRandImg(203), className: "w-36 h-36 md:w-44 md:h-44", style: { left: "20%", bottom: "10%", transform: "rotate(5deg)" }, animate: { y: [-8, 8, -8] }, transition: { duration: 7 } },
+      { src: getRandImg(204), className: "w-56 h-56 md:w-64 md:h-64", style: { right: "18%", bottom: "5%", transform: "rotate(-2deg)" }, animate: { y: [8, -8, 8] }, transition: { duration: 10 } },
+      { src: getRandImg(205), className: "w-24 h-24 md:w-32 md:h-32", style: { left: "40%", top: "5%", transform: "rotate(-5deg)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 6 } },
+      { src: getRandImg(206), className: "w-32 h-32 md:w-40 md:h-40", style: { right: "40%", top: "40%", transform: "rotate(4deg)" }, animate: { y: [6, -6, 6] }, transition: { duration: 8 } },
+      { src: getRandImg(207), className: "w-40 h-40 md:w-48 md:h-48", style: { left: "30%", top: "60%", transform: "rotate(-3deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 11 } }
+    ]
+  }
 
-  const wordImmersionOp = useTransform(scrollYProgress, [0.72, 0.74, 0.76, 0.78], [0, 1, 1, 0])
-  const wordImmersionY = useTransform(scrollYProgress, [0.72, 0.74, 0.76, 0.78], ["60px", "0px", "0px", "-60px"])
-  
-  const wordExperiencesOp = useTransform(scrollYProgress, [0.78, 0.80, 0.84, 0.86], [0, 1, 1, 1])
-  const wordExperiencesY = useTransform(scrollYProgress, [0.78, 0.80, 0.84, 0.86], ["60px", "0px", "0px", "0px"])
+  // Bridging the Explore and Emotion elements visually 
+  const configTransition = {
+    pos: [t1[2], t1[3], t2[0], t2[1]],
+    opacity: [0, 0.6, 0.6, 0],
+    scale: [0.5, 0.8, 0.8, 0.7],
+    filter: ["blur(15px)", "blur(1px)", "blur(1px)", "blur(10px)"],
+    images: [
+      { src: getRandImg(301), className: "w-48 h-48 md:w-64 md:h-64", style: { left: "30%", top: "25%" }, animate: { y: [-15, 15, -15] }, transition: { duration: 8 } },
+      { src: getRandImg(302), className: "w-56 h-56 md:w-72 md:h-72", style: { right: "25%", bottom: "30%" }, animate: { y: [15, -15, 15] }, transition: { duration: 10 } }
+    ]
+  }
 
-  // ==========================
-  // LAYER 4: The Deepest Part
-  // ==========================
-  const layer4Opacity = useTransform(scrollYProgress, [0.86, 0.89, 1, 1], [0, 1, 1, 1])
-  const layer4Scale = useTransform(scrollYProgress, [0.86, 1], [0.95, 1])
+  const configEmotion = {
+    pos: t2,
+    opacity: [0, 0.8, 0.8, 0],
+    scale: [0.7, 1, 1, 0.8],
+    filter: ["blur(12px)", "blur(0px)", "blur(0px)", "blur(10px)"],
+    images: [
+      { src: getRandImg(401), className: "w-64 h-64 md:w-80 md:h-80", style: { left: "20%", top: "35%" }, animate: { y: [-3, 3, -3] }, transition: { duration: 12 } },
+      { src: getRandImg(402), className: "w-56 h-56 md:w-72 md:h-72", style: { right: "20%", bottom: "25%" }, animate: { y: [3, -3, 3] }, transition: { duration: 14 } }
+    ]
+  }
+
+  const configEnjoyment = {
+    pos: t3,
+    opacity: [0, 0.9, 0.9, 0],
+    scale: [0.8, 1.1, 1.1, 0.8],
+    filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
+    images: [
+      { src: getRandImg(501), className: "w-64 h-64 md:w-80 md:h-80", style: { left: "15%", top: "30%" }, animate: { y: [-15, 15, -15], rotate: [-2, 2, -2] }, transition: { duration: 6 } },
+      { src: getRandImg(502), className: "w-56 h-56 md:w-72 md:h-72", style: { right: "12%", top: "25%" }, animate: { y: [10, -10, 10], rotate: [2, -2, 2] }, transition: { duration: 7 } },
+      { src: getRandImg(503), className: "w-72 h-72 md:w-96 md:h-96", style: { left: "35%", bottom: "10%" }, animate: { y: [-12, 12, -12], rotate: [-1, 1, -1] }, transition: { duration: 8 } }
+    ]
+  }
+
+  const configImmersion = {
+    pos: t4,
+    opacity: [0, 0.95, 0.95, 0],
+    scale: [0.9, 1.2, 1.2, 0.9],
+    filter: ["blur(15px)", "blur(0px)", "blur(0px)", "blur(20px)"],
+    images: [
+      { src: getRandImg(601), className: "w-72 h-72 md:w-96 md:h-96 opacity-90", style: { left: "10%", top: "20%", transform: "translateZ(-100px)" }, animate: { y: [-20, 20, -20] }, transition: { duration: 15 } },
+      { src: getRandImg(602), className: "w-56 h-56 md:w-80 md:h-80 opacity-100", style: { right: "10%", top: "35%", transform: "translateZ(50px)" }, animate: { y: [15, -15, 15] }, transition: { duration: 12 } },
+      { src: getRandImg(603), className: "w-48 h-48 md:w-64 md:h-64 opacity-80", style: { left: "30%", bottom: "15%", transform: "translateZ(-50px)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 10 } },
+      { src: getRandImg(604), className: "w-80 h-80 md:w-[28rem] md:h-[28rem] opacity-70", style: { right: "25%", bottom: "5%", transform: "translateZ(-150px)" }, animate: { y: [25, -25, 25] }, transition: { duration: 20 } }
+    ]
+  }
+
+  const configExperiences = {
+    pos: t5,
+    opacity: [0, 1, 1, 0],
+    scale: [0.8, 1.1, 1.1, 0.9],
+    filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
+    images: [
+      { src: getRandImg(701), className: "w-80 h-80 md:w-[26rem] md:h-[26rem]", style: { left: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 12 } },
+      { src: getRandImg(702), className: "w-72 h-72 md:w-[24rem] md:h-[24rem]", style: { right: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [5, -5, 5] }, transition: { duration: 14 } }
+    ]
+  }
+
+  const configFeel = {
+    pos: t6,
+    opacity: [0, 1, 1, 1],
+    scale: [0.9, 1.5, 1.5, 1.5],
+    filter: ["blur(20px)", "blur(0px)", "blur(0px)", "blur(0px)"],
+    images: [
+      { src: getRandImg(801), className: "w-[20rem] h-[20rem] md:w-[35rem] md:h-[35rem]", style: { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }, animate: {}, transition: {} },
+    ]
+  }
 
   return (
-    <section 
-      ref={containerRef} 
-      className="relative w-full h-[650vh]"
+    <section
+      ref={containerRef}
+      // Height decreased from 3500vh to 2600vh (approx 75%)
+      className="relative w-full h-[2600vh]"
     >
-      {/* Sticky Container - Catches mouse movements globally to displace the bubbles */}
-      <div 
-        className="sticky top-0 left-0 w-full h-screen overflow-hidden flex items-center justify-center"
+      <div
+        className="sticky top-0 left-0 w-full h-screen overflow-hidden flex items-center justify-center pointer-events-auto"
         onMouseMove={(e) => {
           mouseX.set(e.clientX)
           mouseY.set(e.clientY)
@@ -146,130 +258,154 @@ export function DeepNarrativeExperience() {
       >
 
         {/* Dynamic Dark Depth Mask */}
-        <motion.div 
-          style={{ opacity: depthOverlayOpacity }} 
+        <motion.div
+          style={{ opacity: depthOverlayOpacity }}
           className="absolute inset-0 bg-[#000000] pointer-events-none z-[-2]"
         />
 
-        {/* Ambient continuous upward floating particle ocean */}
         <AmbientParticleLayer />
 
+
+        {/* ======================= */}
+        {/* IMAGE PLACEHOLDER SETS  */}
+        {/* ======================= */}
+        <div style={{ perspective: 1200 }} className="absolute inset-0 z-[0] transform-gpu">
+           <motion.div style={{ rotateX, rotateY, transformStyle: "preserve-3d" }} className="w-full h-full">
+              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configFeeling} images={configFeeling.images} zIndex={-5} />
+              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configExplore} images={configExplore.images} zIndex={-4} />
+              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configTransition} images={configTransition.images} zIndex={-3} />
+              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEmotion} images={configEmotion.images} zIndex={-2} />
+              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEnjoyment} images={configEnjoyment.images} zIndex={-2} />
+              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configImmersion} images={configImmersion.images} zIndex={-2} />
+              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configExperiences} images={configExperiences.images} zIndex={-2} />
+           </motion.div>
+        </div>
+
+        {/* Final large image backdrop for LAYER 4 */}
+        <div className="absolute inset-0 z-[-1]">
+           <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configFeel} images={configFeel.images} />
+           <motion.div style={{ opacity: layer4Opacity }} className="absolute inset-0 bg-black/60 pointer-events-none" />
+        </div>
+
+
+
         {/* LAYER 1: Entering the Water */}
-        <motion.div 
+        <motion.div
           style={{ opacity: layer1Opacity, y: layer1Y }}
           className="absolute inset-0 flex items-center justify-center z-[2]"
         >
-          {/* A faint central light ray effect */}
           <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[1px] bg-gradient-to-b from-transparent via-primary/30 to-transparent h-[40vh] opacity-50 blur-[2px]" />
-          
-          <h2 className="text-3xl md:text-5xl lg:text-7xl font-heading text-white tracking-wide mix-blend-screen text-center px-4 drop-shadow-[0_0_15px_rgba(0,255,255,0.2)] leading-tight">
-            My work always starts<br/>
-            <span className="italic text-primary/90 font-light drop-shadow-[0_0_20px_rgba(0,255,255,0.5)]">with a feeling</span>
+
+          <h2 className="text-3xl md:text-5xl lg:text-7xl font-heading text-white tracking-wide mix-blend-screen text-center px-4 [text-shadow:0_0_15px_rgba(0,255,255,0.2)] leading-tight">
+            My work always starts<br />
+            <span className="italic text-primary/90 font-light [text-shadow:0_0_20px_rgba(0,255,255,0.5)]">with a feeling</span>
           </h2>
         </motion.div>
 
         {/* LAYER 2: Ideas form & Interactive Bubbles */}
-        <motion.div 
+        <motion.div
           style={{ opacity: layer2Opacity, perspective: 1200 }}
           className="absolute inset-0 flex items-center justify-center z-[3]"
         >
-          {/* This wrapper provides 3D rotation depending on the mouse, making the whole group of elements seem to tilt in 3D space natively! */}
-          <motion.div 
+          <motion.div
             style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-            className="relative w-full max-w-5xl h-full flex items-center justify-center"
+            className="relative w-full max-w-5xl h-full flex items-center justify-center transform-gpu will-change-transform"
           >
-            {/* Center Anchor matched to the preferred big heading font */}
-            <h3 
-              className="text-4xl md:text-6xl lg:text-[5.5rem] font-heading italic text-white text-center z-10 px-4 leading-[1.1] tracking-tight drop-shadow-[0_0_20px_rgba(0,255,255,0.25)]"
-              style={{ transform: "translateZ(80px)" }} // Pushes text forward in 3D
+            <h3
+              className="text-4xl md:text-6xl lg:text-[5.5rem] font-heading italic text-white text-center z-10 px-4 leading-[1.1] tracking-tight [text-shadow:0_0_20px_rgba(0,255,255,0.25)]"
+              style={{ transform: "translateZ(80px)" }}
             >
-              I explore before I decide
+              I explore before I design
             </h3>
 
-            {/* Orbiting / Floating Bubbles (Parallax + Liquid Bubble Glass + Deep Offset) */}
-            <motion.div style={{ y: word1Y, x: displaceX1, transform: "translateZ(120px)" }} className="absolute left-[15%] top-[25%] pointer-events-auto cursor-default">
-              <motion.span 
-                animate={{ y: [-15, 15, -15], rotate: [-2, 2, -2] }} 
-                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }} 
-                style={{ borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%" }}
-                className="liquid-bubble flex items-center justify-center px-8 py-5 text-primary font-bubble text-xl md:text-3xl"
+            <motion.div style={{ y: word1Y, x: displaceX1, z: 120 }} className="absolute left-[15%] top-[15%] pointer-events-auto cursor-default transform-gpu">
+              <motion.div
+                animate={{ y: [-15, 15, -15], rotate: [-2, 2, -2] }}
+                transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                className="relative flex items-center justify-center w-48 h-48 md:w-56 md:h-56 mix-blend-screen opacity-90"
               >
-                curiosity
-              </motion.span>
+                <video src="https://future.co/images/homepage/glassy-orb/orb-purple.webm" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ filter: "hue-rotate(-55deg) saturate(250%) brightness(0.6) contrast(1.2)" }} />
+                <span className="relative z-10 text-white font-bubble text-xl md:text-2xl tracking-wide">
+                  curiosity
+                </span>
+              </motion.div>
             </motion.div>
-            
-            <motion.div style={{ y: word2Y, x: displaceX2, transform: "translateZ(-40px)" }} className="absolute right-[20%] top-[20%] pointer-events-auto cursor-default">
-              <motion.span 
-                animate={{ y: [-10, 10, -10], rotate: [2, -2, 2] }} 
-                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }} 
-                style={{ borderRadius: "50% 50% 30% 70% / 60% 40% 70% 40%" }}
-                className="liquid-bubble flex items-center justify-center px-7 py-4 text-white/90 font-bubble text-lg md:text-2xl"
+
+            <motion.div style={{ y: word2Y, x: displaceX2, z: -40 }} className="absolute right-[20%] top-[15%] pointer-events-auto cursor-default transform-gpu">
+              <motion.div
+                animate={{ y: [-10, 10, -10], rotate: [2, -2, 2] }}
+                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
+                className="relative flex items-center justify-center w-36 h-36 md:w-44 md:h-44 mix-blend-screen opacity-90"
               >
-                play
-              </motion.span>
+                <video src="https://future.co/images/homepage/glassy-orb/orb-purple.webm" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ filter: "hue-rotate(-55deg) saturate(250%) brightness(0.6) contrast(1.2)" }} />
+                <span className="relative z-10 text-white font-bubble text-lg md:text-xl tracking-wide">
+                  play
+                </span>
+              </motion.div>
             </motion.div>
-            
-            <motion.div style={{ y: word3Y, x: displaceX3, transform: "translateZ(150px)" }} className="absolute left-[20%] bottom-[25%] pointer-events-auto cursor-default">
-              <motion.span 
-                animate={{ y: [-20, 20, -20], rotate: [-3, 3, -3] }} 
-                transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 0.5 }} 
-                style={{ borderRadius: "60% 40% 50% 50% / 40% 60% 50% 60%" }}
-                className="liquid-bubble flex items-center justify-center px-10 py-6 text-primary font-bubble text-2xl md:text-4xl"
+
+            <motion.div style={{ y: word3Y, x: displaceX3, z: 150 }} className="absolute left-[15%] bottom-[15%] pointer-events-auto cursor-default transform-gpu">
+              <motion.div
+                animate={{ y: [-20, 20, -20], rotate: [-3, 3, -3] }}
+                transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 0.5 }}
+                className="relative flex items-center justify-center w-60 h-60 md:w-72 md:h-72 mix-blend-screen opacity-90"
               >
-                experimentation
-              </motion.span>
+                <video src="https://future.co/images/homepage/glassy-orb/orb-purple.webm" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ filter: "hue-rotate(-55deg) saturate(250%) brightness(0.6) contrast(1.2)" }} />
+                <span className="relative z-10 text-white font-bubble text-2xl md:text-3xl tracking-wide">
+                  experimentation
+                </span>
+              </motion.div>
             </motion.div>
-            
-            <motion.div style={{ y: word4Y, x: displaceX4, transform: "translateZ(40px)" }} className="absolute right-[15%] bottom-[30%] pointer-events-auto cursor-default">
-              <motion.span 
-                animate={{ y: [-12, 12, -12], rotate: [1, -3, 1] }} 
-                transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut", delay: 2 }} 
-                style={{ borderRadius: "30% 70% 50% 50% / 50% 50% 70% 40%" }}
-                className="liquid-bubble flex items-center justify-center px-8 py-4 text-white/90 font-bubble text-xl md:text-2xl"
+
+            <motion.div style={{ y: word4Y, x: displaceX4, z: 40 }} className="absolute right-[10%] bottom-[20%] pointer-events-auto cursor-default transform-gpu">
+              <motion.div
+                animate={{ y: [-12, 12, -12], rotate: [1, -3, 1] }}
+                transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut", delay: 2 }}
+                className="relative flex items-center justify-center w-40 h-40 md:w-48 md:h-48 mix-blend-screen opacity-90"
               >
-                intuition
-              </motion.span>
+                <video src="https://future.co/images/homepage/glassy-orb/orb-purple.webm" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ filter: "hue-rotate(-55deg) saturate(250%) brightness(0.6) contrast(1.2)" }} />
+                <span className="relative z-10 text-white font-bubble text-lg md:text-xl tracking-wide">
+                  intuition
+                </span>
+              </motion.div>
             </motion.div>
-            
-            <motion.div style={{ y: word5Y, x: displaceX1, transform: "translateZ(-80px)" }} className="absolute left-[45%] top-[10%] pointer-events-auto cursor-default">
-              <motion.span 
-                animate={{ y: [-8, 8, -8], rotate: [-1, 2, -1] }} 
-                transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut", delay: 1.5 }} 
-                style={{ borderRadius: "50% 50% 60% 40% / 30% 70% 50% 60%" }}
-                className="liquid-bubble flex items-center justify-center px-6 py-3 text-primary/80 font-bubble text-sm md:text-base tracking-widest uppercase"
+
+            <motion.div style={{ y: word5Y, x: displaceX1, z: -80 }} className="absolute left-[45%] top-[5%] pointer-events-auto cursor-default transform-gpu">
+              <motion.div
+                animate={{ y: [-8, 8, -8], rotate: [-1, 2, -1] }}
+                transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut", delay: 1.5 }}
+                className="relative flex items-center justify-center w-44 h-44 md:w-52 md:h-52 mix-blend-screen opacity-80"
               >
-                trying things
-              </motion.span>
+                <video src="https://future.co/images/homepage/glassy-orb/orb-purple.webm" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ filter: "hue-rotate(-55deg) saturate(250%) brightness(0.6) contrast(1.2)" }} />
+                <span className="relative z-10 text-white font-bubble text-sm md:text-base tracking-widest uppercase text-center leading-tight">
+                  trying<br/>things
+                </span>
+              </motion.div>
             </motion.div>
-            
-            {/* Additional interactive Layer 2 particles tied to rotation for ultra depth */}
+
             <div className="absolute inset-0 pointer-events-none transform-gpu" style={{ transform: "translateZ(60px)" }}>
               <motion.div style={{ x: displaceX2, y: displaceY1 }} className="absolute top-1/3 left-1/4 w-2 h-2 rounded-full bg-cyan-300 shadow-[0_0_15px_5px_rgba(0,255,255,0.4)] opacity-50 mix-blend-screen" />
               <motion.div style={{ x: displaceX3, y: displaceY2 }} className="absolute top-2/3 right-1/4 w-1 h-1 rounded-full bg-cyan-200 shadow-[0_0_10px_3px_rgba(0,255,255,0.5)] opacity-40 mix-blend-screen" />
-              <motion.div style={{ x: displaceX4, y: displaceY3 }} className="absolute bottom-1/4 left-1/3 w-1.5 h-1.5 rounded-full bg-blue-300 shadow-[0_0_12px_4px_rgba(0,200,255,0.4)] opacity-60 mix-blend-screen" />
             </div>
           </motion.div>
         </motion.div>
 
         {/* LAYER 3: Design Process */}
-        <motion.div 
+        <motion.div
           style={{ opacity: layer3Opacity }}
           className="absolute inset-0 flex flex-col items-center justify-center z-[4] w-full"
         >
-          {/* Using a single flex-row container. The font size drives the height. 
-              The relative container has zero width so the text flows out to the right naturally. */}
           <div className="flex flex-row items-center justify-center w-full text-3xl md:text-5xl lg:text-[4.5rem] font-heading text-white px-4 leading-[1.1] tracking-tight">
             <span className="opacity-70 font-light mr-4 md:mr-6 whitespace-nowrap">I design for</span>
-            {/* Using a flexible wrapper that ensures the layout stays centered! */}
             <div className="relative h-[1.2em] w-[150px] md:w-[250px] lg:w-[350px] flex items-center justify-start">
-              
-              <motion.span style={{ opacity: wordEmotionOp, y: wordEmotionY }} className="absolute left-0 italic text-primary drop-shadow-[0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">emotion</motion.span>
-              
-              <motion.span style={{ opacity: wordCalmOp, y: wordCalmY }} className="absolute left-0 italic text-primary drop-shadow-[0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">calm</motion.span>
-              
-              <motion.span style={{ opacity: wordImmersionOp, y: wordImmersionY }} className="absolute left-0 italic text-primary drop-shadow-[0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">immersion</motion.span>
-              
-              <motion.span style={{ opacity: wordExperiencesOp, y: wordExperiencesY }} className="absolute left-0 italic text-primary drop-shadow-[0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">
+
+              <motion.span style={{ opacity: wordEmotionOp, y: wordEmotionY }} className="absolute left-0 italic text-primary [text-shadow:0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">emotion</motion.span>
+
+              <motion.span style={{ opacity: wordEnjoymentOp, y: wordEnjoymentY }} className="absolute left-0 italic text-primary [text-shadow:0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">enjoyment</motion.span>
+
+              <motion.span style={{ opacity: wordImmersionOp, y: wordImmersionY }} className="absolute left-0 italic text-primary [text-shadow:0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">immersion</motion.span>
+
+              <motion.span style={{ opacity: wordExperiencesOp, y: wordExperiencesY }} className="absolute left-0 italic text-primary [text-shadow:0_0_20px_rgba(0,255,255,0.3)] whitespace-nowrap">
                 experiences
               </motion.span>
 
@@ -278,13 +414,13 @@ export function DeepNarrativeExperience() {
         </motion.div>
 
         {/* LAYER 4: The Deepest Part */}
-        <motion.div 
+        <motion.div
           style={{ opacity: layer4Opacity, scale: layer4Scale }}
           className="absolute inset-0 flex flex-col items-center justify-center z-[5] text-center px-4"
         >
-          <h1 className="text-5xl md:text-6xl lg:text-[6rem] font-heading text-white leading-tight tracking-[0.02em] drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)]">
+          <h1 className="text-5xl md:text-6xl lg:text-[6rem] font-heading text-white leading-tight tracking-[0.02em] [text-shadow:0_4px_20px_rgba(0,0,0,0.8)]">
             <span className="block opacity-60 font-light mb-6">I don't just design things people see</span>
-            <span className="block italic text-primary drop-shadow-[0_0_30px_rgba(0,255,255,0.15)] leading-[0.9]">I design things people feel</span>
+            <span className="block italic text-primary [text-shadow:0_0_30px_rgba(0,255,255,0.15)] leading-[0.9]">I design things people feel</span>
           </h1>
         </motion.div>
 

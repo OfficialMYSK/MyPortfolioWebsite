@@ -12,26 +12,28 @@ function App() {
     <ParticleProvider>
       <div id="scroll-root" className="w-full relative bg-[#000000] text-white selection:bg-primary/30 selection:text-white">
 
-
         <CinematicLoader />
         <BioluminescentCursor />
         <ParticleToggle />
-      
-      <main className="w-full relative z-10">
-        <CinematicHero />
-        <TransitionDive />
-        
-        {/* Container for sections with a seamless depth gradient */}
-        <div className="relative w-full">
-          {/* Background gradient starting oceanic and becoming pitch black */}
-          <div className="absolute inset-0 z-[-1] pointer-events-none bg-[linear-gradient(to_bottom,#082229_0%,#061a1f_20%,#041216_50%,#02080a_80%,#000000_100%)]" />
-          <div className="relative z-10 w-full">
-            <DeepNarrativeExperience />
+
+        <main className="w-full relative z-10">
+          <CinematicHero />
+          <TransitionDive />
+
+          {/* Container for sections with a seamless depth gradient */}
+          <div className="relative w-full">
+            {/* Background gradient starting oceanic and becoming pitch black */}
+            <div className="absolute inset-0 z-[-1] pointer-events-none bg-[linear-gradient(to_bottom,#09071a_0%,#070514_20%,#04030d_50%,#020106_80%,#000000_100%)]" />
+            <div className="relative z-10 w-full">
+              <DeepNarrativeExperience />
+            </div>
           </div>
-        </div>
-      </main>
-      
-      <CinematicFooter />
+        </main>
+
+        {/* Empty scroll space buffer to create the same pacing void before the footer appears */}
+        <div className="w-full h-[75vh] bg-[#000000] pointer-events-none" />
+
+        <CinematicFooter />
       </div>
     </ParticleProvider>
   )

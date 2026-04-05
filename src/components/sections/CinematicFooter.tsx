@@ -1,9 +1,21 @@
-import { motion } from "framer-motion"
+import { motion, useInView } from "framer-motion"
 import { HLSVideo } from "@/components/ui/hls-video"
+import { useRef, useEffect } from "react"
 
 export function CinematicFooter() {
+  const footerRef = useRef<HTMLElement>(null)
+  
+  // Trigger when the footer is 10% into view from the bottom
+  const isInView = useInView(footerRef, { margin: "-10% 0px 0px 0px", once: false })
+
+  useEffect(() => {
+    if (isInView && footerRef.current) {
+      footerRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }
+  }, [isInView])
+
   return (
-    <footer className="relative w-full h-screen min-h-screen snap-start bg-[#000000] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+    <footer ref={footerRef} className="relative w-full h-screen min-h-screen bg-[#000000] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <HLSVideo 
           src="https://stream.mux.com/2i1rBMfsSET9NaccgZvawPnkfXMw0102JpSDrwVgtLgEY.m3u8"
