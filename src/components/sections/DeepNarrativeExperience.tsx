@@ -82,13 +82,13 @@ export function DeepNarrativeExperience() {
   // Re-balanced to provide equal hold-time to the final Feel section
   // format: [fadeInStart, FullyVisibleStart, FullyVisibleEnd, FadeOutEnd]
   // ==========================
-  const t0 = [0.00, 0.02, 0.08, 0.11] // Feeling
-  const t1 = [0.15, 0.17, 0.23, 0.26] // Explore
-  const t2 = [0.30, 0.32, 0.38, 0.41] // Emotion
-  const t3 = [0.45, 0.47, 0.53, 0.56] // Enjoyment
-  const t4 = [0.60, 0.62, 0.68, 0.71] // Immersion
-  const t5 = [0.75, 0.77, 0.83, 0.86] // Experiences
-  const t6 = [0.90, 0.92, 0.98, 1.00] // Feel
+  const t0 = [0.00, 0.04, 0.08, 0.12] // Feeling
+  const t1 = [0.15, 0.19, 0.23, 0.27] // Explore
+  const t2 = [0.30, 0.34, 0.38, 0.42] // Emotion
+  const t3 = [0.45, 0.49, 0.53, 0.57] // Enjoyment
+  const t4 = [0.60, 0.64, 0.68, 0.72] // Immersion
+  const t5 = [0.75, 0.79, 0.83, 0.87] // Experiences
+  const t6 = [0.90, 0.94, 0.98, 1.00] // Feel
 
   // MOUSE PARALLAX
   const mouseX = useMotionValue(0)
@@ -143,48 +143,38 @@ export function DeepNarrativeExperience() {
   // ==========================
   // PLACEHOLDER IMAGE CONFIGS
   // ==========================
-  const getRandImg = (seed: number) => `https://picsum.photos/seed/${seed}/400/400`
+
 
   const configFeeling = {
     pos: t0,
-    opacity: [0, 0.15, 0.15, 0],
-    scale: [0.3, 0.5, 0.5, 0.2],
-    filter: ["blur(15px)", "blur(3px)", "blur(3px)", "blur(15px)"],
+    opacity: [0, 0.4, 0.4, 0],
+    scale: [0.5, 0.8, 0.8, 0.4],
+    filter: ["blur(15px)", "blur(4px)", "blur(4px)", "blur(15px)"],
     images: [
-      { src: getRandImg(101), className: "w-32 h-32 md:w-48 md:h-48", style: { left: "10%", top: "20%" }, animate: { y: [-10, 10, -10] }, transition: { duration: 8 } },
-      { src: getRandImg(102), className: "w-40 h-40 md:w-56 md:h-56", style: { right: "15%", top: "30%" }, animate: { y: [15, -15, 15] }, transition: { duration: 10 } },
-      { src: getRandImg(103), className: "w-24 h-24 md:w-36 md:h-36", style: { left: "30%", bottom: "25%" }, animate: { y: [-20, 20, -20] }, transition: { duration: 12 } },
-      { src: getRandImg(104), className: "w-48 h-48 md:w-64 md:h-64", style: { right: "25%", bottom: "15%" }, animate: { y: [10, -10, 10] }, transition: { duration: 9 } }
+      { src: "/images/main-page/section 1/abstract sketch.jpg", className: "w-32 h-32 md:w-52 md:h-52", style: { left: "15%", top: "25%" }, animate: { y: [-15, 15, -15] }, transition: { duration: 8 } },
+      { src: "/images/main-page/section 1/handwritten note  idea fragment.png", className: "w-40 h-40 md:w-60 md:h-60", style: { right: "20%", top: "30%" }, animate: { y: [15, -15, 15] }, transition: { duration: 10 } },
+      { src: "/images/main-page/section 1/blurred photo of a previous project.png", className: "w-24 h-24 md:w-48 md:h-48", style: { left: "25%", bottom: "25%" }, animate: { y: [-20, 20, -20] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 1/mood-like image.jpg", className: "w-48 h-48 md:w-64 md:h-64", style: { right: "25%", bottom: "20%" }, animate: { y: [10, -10, 10] }, transition: { duration: 9 } }
     ]
   }
 
   const configExplore = {
     pos: t1,
-    opacity: [0, 0.3, 0.3, 0],
+    opacity: [0.001, 0.4, 0.4, 0.001],
     scale: [0.6, 0.9, 0.9, 0.5],
-    filter: ["blur(20px)", "blur(4px)", "blur(4px)", "blur(20px)"],
+    filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
     images: [
-      { src: getRandImg(201), className: "w-32 h-32 md:w-40 md:h-40", style: { left: "8%", top: "15%", transform: "rotate(-4deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 8 } },
-      { src: getRandImg(202), className: "w-48 h-48 md:w-56 md:h-56", style: { right: "12%", top: "10%", transform: "rotate(3deg)" }, animate: { y: [5, -5, 5] }, transition: { duration: 9 } },
-      { src: getRandImg(203), className: "w-36 h-36 md:w-44 md:h-44", style: { left: "20%", bottom: "10%", transform: "rotate(5deg)" }, animate: { y: [-8, 8, -8] }, transition: { duration: 7 } },
-      { src: getRandImg(204), className: "w-56 h-56 md:w-64 md:h-64", style: { right: "18%", bottom: "5%", transform: "rotate(-2deg)" }, animate: { y: [8, -8, 8] }, transition: { duration: 10 } },
-      { src: getRandImg(205), className: "w-24 h-24 md:w-32 md:h-32", style: { left: "40%", top: "5%", transform: "rotate(-5deg)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 6 } },
-      { src: getRandImg(206), className: "w-32 h-32 md:w-40 md:h-40", style: { right: "40%", top: "40%", transform: "rotate(4deg)" }, animate: { y: [6, -6, 6] }, transition: { duration: 8 } },
-      { src: getRandImg(207), className: "w-40 h-40 md:w-48 md:h-48", style: { left: "30%", top: "60%", transform: "rotate(-3deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 11 } }
+      { src: "/images/main-page/section 2/messy prototype.jpeg", className: "w-32 h-32 md:w-40 md:h-40", style: { left: "8%", top: "15%", transform: "rotate(-4deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 8 } },
+      { src: "/images/main-page/section 2/code snippet.png", className: "w-48 h-48 md:w-56 md:h-56", style: { right: "12%", top: "10%", transform: "rotate(3deg)" }, animate: { y: [5, -5, 5] }, transition: { duration: 9 } },
+      { src: "/images/main-page/section 2/rough physical build.jpg", className: "w-36 h-36 md:w-44 md:h-44", style: { left: "20%", bottom: "10%", transform: "rotate(5deg)" }, animate: { y: [-8, 8, -8] }, transition: { duration: 7 } },
+      { src: "/images/main-page/section 2/iteration sketch.jpg", className: "w-56 h-56 md:w-64 md:h-64", style: { right: "18%", bottom: "5%", transform: "rotate(-2deg)" }, animate: { y: [8, -8, 8] }, transition: { duration: 10 } },
+      { src: "/images/main-page/section 2/test setup photo.jpg", className: "w-24 h-24 md:w-32 md:h-32", style: { left: "40%", top: "5%", transform: "rotate(-5deg)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 6 } },
+      { src: "/images/main-page/section 2/failure  in-progress moment.jpeg", className: "w-32 h-32 md:w-40 md:h-40", style: { right: "40%", top: "40%", transform: "rotate(4deg)" }, animate: { y: [6, -6, 6] }, transition: { duration: 8 } },
+      { src: "/images/main-page/section 2/second messy prototype or different angle.jpg", className: "w-40 h-40 md:w-48 md:h-48", style: { left: "30%", top: "60%", transform: "rotate(-3deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 11 } }
     ]
   }
 
-  // Bridging the Explore and Emotion elements visually 
-  const configTransition = {
-    pos: [t1[2], t1[3], t2[0], t2[1]],
-    opacity: [0, 0.6, 0.6, 0],
-    scale: [0.5, 0.8, 0.8, 0.7],
-    filter: ["blur(15px)", "blur(1px)", "blur(1px)", "blur(10px)"],
-    images: [
-      { src: getRandImg(301), className: "w-48 h-48 md:w-64 md:h-64", style: { left: "30%", top: "25%" }, animate: { y: [-15, 15, -15] }, transition: { duration: 8 } },
-      { src: getRandImg(302), className: "w-56 h-56 md:w-72 md:h-72", style: { right: "25%", bottom: "30%" }, animate: { y: [15, -15, 15] }, transition: { duration: 10 } }
-    ]
-  }
+
 
   const configEmotion = {
     pos: t2,
@@ -192,8 +182,8 @@ export function DeepNarrativeExperience() {
     scale: [0.7, 1, 1, 0.8],
     filter: ["blur(12px)", "blur(0px)", "blur(0px)", "blur(10px)"],
     images: [
-      { src: getRandImg(401), className: "w-64 h-64 md:w-80 md:h-80", style: { left: "20%", top: "35%" }, animate: { y: [-3, 3, -3] }, transition: { duration: 12 } },
-      { src: getRandImg(402), className: "w-56 h-56 md:w-72 md:h-72", style: { right: "20%", bottom: "25%" }, animate: { y: [3, -3, 3] }, transition: { duration: 14 } }
+      { src: "/images/main-page/section 4/experience-focused project.png", className: "w-64 h-64 md:w-80 md:h-80", style: { left: "20%", top: "35%" }, animate: { y: [-3, 3, -3] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 4/experience-focused project 2.png", className: "w-56 h-56 md:w-72 md:h-72", style: { right: "20%", bottom: "25%" }, animate: { y: [3, -3, 3] }, transition: { duration: 14 } }
     ]
   }
 
@@ -203,9 +193,9 @@ export function DeepNarrativeExperience() {
     scale: [0.8, 1.1, 1.1, 0.8],
     filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
     images: [
-      { src: getRandImg(501), className: "w-64 h-64 md:w-80 md:h-80", style: { left: "15%", top: "30%" }, animate: { y: [-15, 15, -15], rotate: [-2, 2, -2] }, transition: { duration: 6 } },
-      { src: getRandImg(502), className: "w-56 h-56 md:w-72 md:h-72", style: { right: "12%", top: "25%" }, animate: { y: [10, -10, 10], rotate: [2, -2, 2] }, transition: { duration: 7 } },
-      { src: getRandImg(503), className: "w-72 h-72 md:w-96 md:h-96", style: { left: "35%", bottom: "10%" }, animate: { y: [-12, 12, -12], rotate: [-1, 1, -1] }, transition: { duration: 8 } }
+      { src: "/images/main-page/section 5/Arcade Box (main visual).jpg", className: "w-64 h-64 md:w-80 md:h-80", style: { left: "15%", top: "30%" }, animate: { y: [-15, 15, -15], rotate: [-2, 2, -2] }, transition: { duration: 6 } },
+      { src: "/images/main-page/section 5/second angle or detail of Arcade Box.jpg", className: "w-56 h-56 md:w-72 md:h-72", style: { right: "12%", top: "25%" }, animate: { y: [10, -10, 10], rotate: [2, -2, 2] }, transition: { duration: 7 } },
+      { src: "/images/main-page/section 5/another playful interaction.jpg", className: "w-72 h-72 md:w-96 md:h-96", style: { left: "35%", bottom: "10%" }, animate: { y: [-12, 12, -12], rotate: [-1, 1, -1] }, transition: { duration: 8 } }
     ]
   }
 
@@ -215,10 +205,10 @@ export function DeepNarrativeExperience() {
     scale: [0.9, 1.2, 1.2, 0.9],
     filter: ["blur(15px)", "blur(0px)", "blur(0px)", "blur(20px)"],
     images: [
-      { src: getRandImg(601), className: "w-72 h-72 md:w-96 md:h-96 opacity-90", style: { left: "10%", top: "20%", transform: "translateZ(-100px)" }, animate: { y: [-20, 20, -20] }, transition: { duration: 15 } },
-      { src: getRandImg(602), className: "w-56 h-56 md:w-80 md:h-80 opacity-100", style: { right: "10%", top: "35%", transform: "translateZ(50px)" }, animate: { y: [15, -15, 15] }, transition: { duration: 12 } },
-      { src: getRandImg(603), className: "w-48 h-48 md:w-64 md:h-64 opacity-80", style: { left: "30%", bottom: "15%", transform: "translateZ(-50px)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 10 } },
-      { src: getRandImg(604), className: "w-80 h-80 md:w-[28rem] md:h-[28rem] opacity-70", style: { right: "25%", bottom: "5%", transform: "translateZ(-150px)" }, animate: { y: [25, -25, 25] }, transition: { duration: 20 } }
+      { src: "/images/main-page/section 6/Knibbel project.png", className: "w-72 h-72 md:w-96 md:h-96 opacity-90", style: { left: "10%", top: "20%", transform: "translateZ(-100px)" }, animate: { y: [-20, 20, -20] }, transition: { duration: 15 } },
+      { src: "/images/main-page/section 6/Tinker Imageneers.png", className: "w-56 h-56 md:w-80 md:h-80 opacity-100", style: { right: "10%", top: "35%", transform: "translateZ(50px)" }, animate: { y: [15, -15, 15] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 6/wide shot of an experience  installation.png", className: "w-48 h-48 md:w-64 md:h-64 opacity-80", style: { left: "30%", bottom: "15%", transform: "translateZ(-50px)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 10 } },
+      { src: "/images/main-page/section 6/detail shot that adds atmosphere.png", className: "w-80 h-80 md:w-[28rem] md:h-[28rem] opacity-70", style: { right: "25%", bottom: "5%", transform: "translateZ(-150px)" }, animate: { y: [25, -25, 25] }, transition: { duration: 20 } }
     ]
   }
 
@@ -228,8 +218,8 @@ export function DeepNarrativeExperience() {
     scale: [0.8, 1.1, 1.1, 0.9],
     filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
     images: [
-      { src: getRandImg(701), className: "w-80 h-80 md:w-[26rem] md:h-[26rem]", style: { left: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 12 } },
-      { src: getRandImg(702), className: "w-72 h-72 md:w-[24rem] md:h-[24rem]", style: { right: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [5, -5, 5] }, transition: { duration: 14 } }
+      { src: "/images/main-page/section 7/strongest visual design Poster.png", className: "w-80 h-80 md:w-[26rem] md:h-[26rem]", style: { left: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 7/strongest visual design ORIGO.png", className: "w-72 h-72 md:w-[24rem] md:h-[24rem]", style: { right: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [5, -5, 5] }, transition: { duration: 14 } }
     ]
   }
 
@@ -239,7 +229,7 @@ export function DeepNarrativeExperience() {
     scale: [0.9, 1.5, 1.5, 1.5],
     filter: ["blur(20px)", "blur(0px)", "blur(0px)", "blur(0px)"],
     images: [
-      { src: getRandImg(801), className: "w-[20rem] h-[20rem] md:w-[35rem] md:h-[35rem]", style: { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }, animate: {}, transition: {} },
+      { src: "/images/main-page/section 8/your single strongest image overall.png", className: "w-[20rem] h-[20rem] md:w-[35rem] md:h-[35rem]", style: { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }, animate: {}, transition: {} },
     ]
   }
 
@@ -273,7 +263,7 @@ export function DeepNarrativeExperience() {
            <motion.div style={{ rotateX, rotateY, transformStyle: "preserve-3d" }} className="w-full h-full">
               <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configFeeling} images={configFeeling.images} zIndex={-5} />
               <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configExplore} images={configExplore.images} zIndex={-4} />
-              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configTransition} images={configTransition.images} zIndex={-3} />
+
               <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEmotion} images={configEmotion.images} zIndex={-2} />
               <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEnjoyment} images={configEnjoyment.images} zIndex={-2} />
               <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configImmersion} images={configImmersion.images} zIndex={-2} />
