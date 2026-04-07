@@ -171,11 +171,41 @@
     0% { translate: 0 100vh; }
     100% { translate: 0 -10vh; }
   }
-  
-  @keyframes float-x {
-    0%, 50%, 100% { transform: translateX(0); }
-    25% { transform: translateX(var(--wobble)); }
-    75% { transform: translateX(calc(var(--wobble) * -1)); }
+
+  @keyframes float-cycle {
+    0% {
+      opacity: 0;
+      transform: scale(0.1) translateX(0) translateY(0);
+    }
+    20% {
+      opacity: var(--op);
+      transform: scale(1) translateX(calc(var(--wobble) * 0.2)) translateY(-10px);
+    }
+    80% {
+      opacity: var(--op);
+      transform: scale(1) translateX(calc(var(--wobble) * 0.8)) translateY(-30px);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.1) translateX(var(--wobble)) translateY(-40px);
+    }
+  }
+
+  .parallax-particle {
+    position: absolute;
+    border-radius: 9999px;
+    background-color: rgb(165 243 252);
+    will-change: transform, opacity;
+    pointer-events: none;
+    
+    left: var(--x, 50%);
+    top: var(--y, 50%);
+    width: var(--size, 2px);
+    height: var(--size, 2px);
+    filter: var(--blur, blur(0px));
+    
+    animation: float-cycle var(--dur) ease-in-out infinite;
+    animation-delay: var(--del);
   }
 
   .liquid-glass {

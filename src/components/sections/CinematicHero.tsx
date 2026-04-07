@@ -1,7 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"
+import { Volume2, VolumeX } from "lucide-react"
+import { useSettings } from "@/context/SettingsContext"
 
 export function CinematicHero() {
+  const { isSoundEnabled, setIsSoundEnabled } = useSettings();
   const [isLocked, setIsLocked] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -135,13 +138,36 @@ export function CinematicHero() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 1 }}
-                className="text-white/80 text-sm tracking-[0.4em] uppercase font-mono drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+                className="text-white/80 text-sm tracking-[0.4em] uppercase font-mono drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] mb-4"
               >
                 Initiate Experience
               </motion.div>
 
               <motion.button
-                onClick={simulateSpacebar}
+                onClick={(e) => {
+                  setIsSoundEnabled(!isSoundEnabled);
+                  e.currentTarget.blur(); // Prevents the physical spacebar from natively 'clicking' this button again if it remained focused!
+                }}
+                className="group flex flex-col items-center gap-3 mb-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 bio-glass ${isSoundEnabled ? 'shadow-[0_0_20px_rgba(0,255,255,0.4)] border-cyan-400/50' : ''}`}>
+                  {isSoundEnabled ? <Volume2 className="w-6 h-6 text-cyan-300" /> : <VolumeX className="w-6 h-6 text-white/50 group-hover:text-white/80 transition-colors" />}
+                </div>
+                <span className={`text-[10px] tracking-[0.2em] font-mono uppercase transition-colors duration-300 ${isSoundEnabled ? 'text-cyan-300 drop-shadow-[0_0_8px_rgba(0,255,255,0.5)]' : 'text-white/40 group-hover:text-white/70'}`}>
+                  {isSoundEnabled ? 'Sound Active' : 'Enable Sound'}
+                </span>
+              </motion.button>
+
+              <motion.button
+                onClick={(e) => {
+                  simulateSpacebar();
+                  e.currentTarget.blur();
+                }}
                 whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
                 whileTap={{ scale: 0.95, y: 8 }}
                 animate={{ y: [0, -8, 0] }}

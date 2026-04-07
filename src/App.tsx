@@ -3,18 +3,15 @@ import { CinematicHero } from "@/components/sections/CinematicHero"
 import { TransitionDive } from "@/components/sections/TransitionDive"
 import { DeepNarrativeExperience } from "@/components/sections/DeepNarrativeExperience"
 import { CinematicFooter } from "@/components/sections/CinematicFooter"
-import { BioluminescentCursor } from "@/components/ui/bioluminescent-cursor"
-import { ParticleProvider } from "@/context/ParticleContext"
-import { ParticleToggle } from "@/components/ui/ParticleToggle"
+import { SettingsProvider } from "@/context/SettingsContext"
+import { SettingsMenu } from "@/components/ui/SettingsMenu"
 
 function App() {
   return (
-    <ParticleProvider>
+    <SettingsProvider>
       <div id="scroll-root" className="w-full relative bg-[#000000] text-white selection:bg-primary/30 selection:text-white">
-
         <CinematicLoader />
-        <BioluminescentCursor />
-        <ParticleToggle />
+        <SettingsMenu />
 
         <main className="w-full relative z-10">
           <CinematicHero />
@@ -35,7 +32,7 @@ function App() {
 
         <CinematicFooter />
       </div>
-    </ParticleProvider>
+    </SettingsProvider>
   )
 }
 

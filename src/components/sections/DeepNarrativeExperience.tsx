@@ -2,36 +2,61 @@ import { useRef, useEffect, useState } from "react"
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
 
 // ==========================
-// AMBIENT PARTICLES
+// PARALLAX MARINE SNOW
 // ==========================
-const AMBIENT_PARTICLES = Array.from({ length: 45 }).map(() => ({
-  id: Math.random().toString(36).substring(7),
-  left: `${Math.random() * 100}%`,
-  size: Math.random() * 3 + 1,
-  duration: Math.random() * 30 + 15,
-  delay: Math.random() * -45,
-  opacity: Math.random() * 0.3 + 0.05,
-  wobbleOffset: Math.random() * 60 - 30,
-}))
+const createParticles = (count: number, sizeMin: number, sizeMax: number, blur: number) => {
+  return Array.from({ length: count }).map(() => ({
+    id: Math.random().toString(36).substring(7),
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    size: Math.random() * (sizeMax - sizeMin) + sizeMin,
+    duration: Math.random() * 10 + 10, // 10s to 20s
+    delay: Math.random() * -20, // Random phase within duration
+    opacity: Math.random() * 0.4 + 0.1,
+    wobbleOffset: (Math.random() * 100 + 50) * (Math.random() > 0.5 ? 1 : -1), // Random direction, 50-150px
+    blur: blur,
+  }))
+}
 
-function AmbientParticleLayer() {
-  return (
-    <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden mix-blend-screen">
-      {AMBIENT_PARTICLES.map((p) => (
+const LAYER_BG = createParticles(150, 1, 2.5, 2)
+const LAYER_MD = createParticles(100, 1.5, 3.5, 0)
+const LAYER_FG = createParticles(30, 3, 6, 0)
+
+function ParallaxDepthLayer({ particles, speed, smoothScroll, zIndex }: any) {
+  // Use framer motion to link vertical wrapping seamlessly.
+  const yOffset = useTransform(smoothScroll, (v: any) => {
+    // v goes from 0 to 1 over the document duration
+    // speed multiplies this. E.g. speed=10 wraps 10 times.
+    const scrollAmount = v * speed * 100;
+    return `-${scrollAmount % 100}vh`;
+  });
+
+  const block = (
+    <div className="relative w-full h-[100vh]">
+      {particles.map((p: any) => (
         <div
           key={p.id}
-          className="ambient-particle"
-          style={{ 
-            "--dur": p.duration + "s", 
-            "--del": p.delay + "s", 
-            "--wobble": p.wobbleOffset + "px", 
-            "--x": p.left, 
-            "--size": p.size + "px", 
-            "--op": p.opacity 
+          className="parallax-particle"
+          style={{
+            "--dur": p.duration + "s",
+            "--del": p.delay + "s",
+            "--wobble": p.wobbleOffset + "px",
+            "--x": p.left,
+            "--y": p.top,
+            "--size": p.size + "px",
+            "--op": p.opacity,
+            "--blur": `blur(${p.blur}px)`
           } as React.CSSProperties}
         />
       ))}
     </div>
+  )
+
+  return (
+    <motion.div style={{ y: yOffset }} className={`absolute inset-0 pointer-events-none mix-blend-screen overflow-hidden ${zIndex}`}>
+      {block}
+      {block}
+    </motion.div>
   )
 }
 
@@ -103,7 +128,7 @@ export function DeepNarrativeExperience() {
   const displaceX3 = useTransform(smoothMouseX, [0, windowSize.width], [25, -25])
   const displaceY3 = useTransform(smoothMouseY, [0, windowSize.height], [-25, 25])
   const displaceX4 = useTransform(smoothMouseX, [0, windowSize.width], [-35, 35])
-  
+
   const rotateX = useTransform(smoothMouseY, [0, windowSize.height], [15, -15])
   const rotateY = useTransform(smoothMouseX, [0, windowSize.width], [-15, 15])
 
@@ -170,7 +195,7 @@ export function DeepNarrativeExperience() {
       { src: "/images/main-page/section 2/iteration sketch.jpg", className: "w-56 h-56 md:w-64 md:h-64", style: { right: "18%", bottom: "5%", transform: "rotate(-2deg)" }, animate: { y: [8, -8, 8] }, transition: { duration: 10 } },
       { src: "/images/main-page/section 2/test setup photo.jpg", className: "w-24 h-24 md:w-32 md:h-32", style: { left: "40%", top: "5%", transform: "rotate(-5deg)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 6 } },
       { src: "/images/main-page/section 2/failure  in-progress moment.jpeg", className: "w-32 h-32 md:w-40 md:h-40", style: { right: "40%", top: "40%", transform: "rotate(4deg)" }, animate: { y: [6, -6, 6] }, transition: { duration: 8 } },
-      { src: "/images/main-page/section 2/second messy prototype or different angle.jpg", className: "w-40 h-40 md:w-48 md:h-48", style: { left: "30%", top: "60%", transform: "rotate(-3deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 11 } }
+      { src: "/images/main-page/section 2/second messy prototype or different angle.jpg", className: "w-40 h-40 md:w-48 md:h-48", style: { left: "5%", top: "60%", transform: "rotate(-3deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 11 } }
     ]
   }
 
@@ -182,8 +207,8 @@ export function DeepNarrativeExperience() {
     scale: [0.7, 1, 1, 0.8],
     filter: ["blur(12px)", "blur(0px)", "blur(0px)", "blur(10px)"],
     images: [
-      { src: "/images/main-page/section 4/experience-focused project.png", className: "w-64 h-64 md:w-80 md:h-80", style: { left: "20%", top: "35%" }, animate: { y: [-3, 3, -3] }, transition: { duration: 12 } },
-      { src: "/images/main-page/section 4/experience-focused project 2.png", className: "w-56 h-56 md:w-72 md:h-72", style: { right: "20%", bottom: "25%" }, animate: { y: [3, -3, 3] }, transition: { duration: 14 } }
+      { src: "/images/main-page/section 4/experience-focused project.png", className: "w-[22rem] h-auto md:w-[32rem] md:h-auto", style: { left: "8%", top: "35%" }, animate: { y: [-3, 3, -3] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 4/experience-focused project 2.png", className: "w-[20rem] h-auto md:w-[28rem] md:h-auto", style: { right: "12%", bottom: "25%" }, animate: { y: [3, -3, 3] }, transition: { duration: 14 } }
     ]
   }
 
@@ -193,9 +218,9 @@ export function DeepNarrativeExperience() {
     scale: [0.8, 1.1, 1.1, 0.8],
     filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
     images: [
-      { src: "/images/main-page/section 5/Arcade Box (main visual).jpg", className: "w-64 h-64 md:w-80 md:h-80", style: { left: "15%", top: "30%" }, animate: { y: [-15, 15, -15], rotate: [-2, 2, -2] }, transition: { duration: 6 } },
-      { src: "/images/main-page/section 5/second angle or detail of Arcade Box.jpg", className: "w-56 h-56 md:w-72 md:h-72", style: { right: "12%", top: "25%" }, animate: { y: [10, -10, 10], rotate: [2, -2, 2] }, transition: { duration: 7 } },
-      { src: "/images/main-page/section 5/another playful interaction.jpg", className: "w-72 h-72 md:w-96 md:h-96", style: { left: "35%", bottom: "10%" }, animate: { y: [-12, 12, -12], rotate: [-1, 1, -1] }, transition: { duration: 8 } }
+      { src: "/images/main-page/section 5/Arcade Box (main visual).jpg", className: "w-[22rem] h-auto md:w-[32rem] md:h-auto", style: { left: "10%", top: "30%" }, animate: { y: [-15, 15, -15], rotate: [-2, 2, -2] }, transition: { duration: 6 } },
+      { src: "/images/main-page/section 5/second angle or detail of Arcade Box.jpg", className: "w-[20rem] h-auto md:w-[28rem] md:h-auto", style: { right: "12%", top: "25%" }, animate: { y: [10, -10, 10], rotate: [2, -2, 2] }, transition: { duration: 7 } },
+      { src: "/images/main-page/section 5/another playful interaction.jpg", className: "w-56 h-auto md:w-[22rem] md:h-auto", style: { left: "40%", bottom: "10%", transform: "translateX(-50%)" }, animate: { y: [-12, 12, -12], rotate: [-1, 1, -1] }, transition: { duration: 8 } }
     ]
   }
 
@@ -206,9 +231,9 @@ export function DeepNarrativeExperience() {
     filter: ["blur(15px)", "blur(0px)", "blur(0px)", "blur(20px)"],
     images: [
       { src: "/images/main-page/section 6/Knibbel project.png", className: "w-72 h-72 md:w-96 md:h-96 opacity-90", style: { left: "10%", top: "20%", transform: "translateZ(-100px)" }, animate: { y: [-20, 20, -20] }, transition: { duration: 15 } },
-      { src: "/images/main-page/section 6/Tinker Imageneers.png", className: "w-56 h-56 md:w-80 md:h-80 opacity-100", style: { right: "10%", top: "35%", transform: "translateZ(50px)" }, animate: { y: [15, -15, 15] }, transition: { duration: 12 } },
-      { src: "/images/main-page/section 6/wide shot of an experience  installation.png", className: "w-48 h-48 md:w-64 md:h-64 opacity-80", style: { left: "30%", bottom: "15%", transform: "translateZ(-50px)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 10 } },
-      { src: "/images/main-page/section 6/detail shot that adds atmosphere.png", className: "w-80 h-80 md:w-[28rem] md:h-[28rem] opacity-70", style: { right: "25%", bottom: "5%", transform: "translateZ(-150px)" }, animate: { y: [25, -25, 25] }, transition: { duration: 20 } }
+      { src: "/images/main-page/section 6/Tinker Imageneers.png", className: "w-[20rem] h-auto md:w-[32rem] md:h-auto opacity-100", style: { right: "10%", top: "60%", transform: "translateZ(50px)" }, animate: { y: [15, -15, 15] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 6/wide shot of an experience  installation.png", className: "w-48 h-48 md:w-64 md:h-64 opacity-80", style: { left: "35%", bottom: "15%", transform: "translateZ(-50px)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 10 } },
+      { src: "/images/main-page/section 6/detail shot that adds atmosphere.png", className: "w-80 h-80 md:w-[28rem] md:h-[28rem] opacity-70", style: { right: "25%", top: "10%", transform: "translateZ(-150px)" }, animate: { y: [25, -25, 25] }, transition: { duration: 20 } }
     ]
   }
 
@@ -218,8 +243,8 @@ export function DeepNarrativeExperience() {
     scale: [0.8, 1.1, 1.1, 0.9],
     filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
     images: [
-      { src: "/images/main-page/section 7/strongest visual design Poster.png", className: "w-80 h-80 md:w-[26rem] md:h-[26rem]", style: { left: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 12 } },
-      { src: "/images/main-page/section 7/strongest visual design ORIGO.png", className: "w-72 h-72 md:w-[24rem] md:h-[24rem]", style: { right: "15%", top: "50%", transform: "translateY(-50%)" }, animate: { y: [5, -5, 5] }, transition: { duration: 14 } }
+      { src: "/images/main-page/section 7/strongest visual design Poster.png", className: "w-80 h-auto md:w-[26rem] md:h-auto", style: { left: "10%", top: "20%", transform: "translateY(-50%)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 7/strongest visual design ORIGO.png", className: "w-72 h-72 md:w-[24rem] md:h-[24rem]", style: { right: "15%", top: "25%", transform: "translateY(-50%)" }, animate: { y: [5, -5, 5] }, transition: { duration: 14 } }
     ]
   }
 
@@ -229,7 +254,7 @@ export function DeepNarrativeExperience() {
     scale: [0.9, 1.5, 1.5, 1.5],
     filter: ["blur(20px)", "blur(0px)", "blur(0px)", "blur(0px)"],
     images: [
-      { src: "/images/main-page/section 8/your single strongest image overall.png", className: "w-[20rem] h-[20rem] md:w-[35rem] md:h-[35rem]", style: { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }, animate: {}, transition: {} },
+      { src: "/images/main-page/section 8/your single strongest image overall.png", className: "w-[32rem] h-auto md:w-[56rem] md:h-auto", style: { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }, animate: {}, transition: {} },
     ]
   }
 
@@ -253,28 +278,31 @@ export function DeepNarrativeExperience() {
           className="absolute inset-0 bg-[#000000] pointer-events-none z-[-2]"
         />
 
-        <AmbientParticleLayer />
+        {/* Seamless Depth Parallax Layers */}
+        <ParallaxDepthLayer particles={LAYER_BG} speed={1.5} smoothScroll={smoothScroll} zIndex="z-[0]" />
+        <ParallaxDepthLayer particles={LAYER_MD} speed={2.5} smoothScroll={smoothScroll} zIndex="z-[1]" />
+        <ParallaxDepthLayer particles={LAYER_FG} speed={5.0} smoothScroll={smoothScroll} zIndex="z-[50]" />
 
 
         {/* ======================= */}
         {/* IMAGE PLACEHOLDER SETS  */}
         {/* ======================= */}
         <div style={{ perspective: 1200 }} className="absolute inset-0 z-[0] transform-gpu">
-           <motion.div style={{ rotateX, rotateY, transformStyle: "preserve-3d" }} className="w-full h-full">
-              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configFeeling} images={configFeeling.images} zIndex={-5} />
-              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configExplore} images={configExplore.images} zIndex={-4} />
+          <motion.div style={{ rotateX, rotateY, transformStyle: "preserve-3d" }} className="w-full h-full">
+            <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configFeeling} images={configFeeling.images} zIndex={-5} />
+            <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configExplore} images={configExplore.images} zIndex={-4} />
 
-              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEmotion} images={configEmotion.images} zIndex={-2} />
-              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEnjoyment} images={configEnjoyment.images} zIndex={-2} />
-              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configImmersion} images={configImmersion.images} zIndex={-2} />
-              <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configExperiences} images={configExperiences.images} zIndex={-2} />
-           </motion.div>
+            <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEmotion} images={configEmotion.images} zIndex={-2} />
+            <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configEnjoyment} images={configEnjoyment.images} zIndex={-2} />
+            <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configImmersion} images={configImmersion.images} zIndex={-2} />
+            <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configExperiences} images={configExperiences.images} zIndex={-2} />
+          </motion.div>
         </div>
 
         {/* Final large image backdrop for LAYER 4 */}
         <div className="absolute inset-0 z-[-1]">
-           <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configFeel} images={configFeel.images} />
-           <motion.div style={{ opacity: layer4Opacity }} className="absolute inset-0 bg-black/60 pointer-events-none" />
+          <PlaceholderImageSet smoothScroll={smoothScroll} triggers={configFeel} images={configFeel.images} />
+          <motion.div style={{ opacity: layer4Opacity }} className="absolute inset-0 bg-black/60 pointer-events-none" />
         </div>
 
 
@@ -368,7 +396,7 @@ export function DeepNarrativeExperience() {
               >
                 <video src="https://future.co/images/homepage/glassy-orb/orb-purple.webm" autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-contain pointer-events-none" style={{ filter: "hue-rotate(-55deg) saturate(250%) brightness(0.6) contrast(1.2)" }} />
                 <span className="relative z-10 text-white font-bubble text-sm md:text-base tracking-widest uppercase text-center leading-tight">
-                  trying<br/>things
+                  trying<br />things
                 </span>
               </motion.div>
             </motion.div>

@@ -46,7 +46,7 @@ export function CinematicFooter() {
         <motion.p 
             initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 1, duration: 2 }}
             className="text-white/20 uppercase tracking-[0.4em] mt-40 text-xs font-body">
-            © 2026 Portfolio. Dive Deep.
+            © 2026 MYSK PORTFOLIO
         </motion.p>
       </motion.div>
     </footer>
