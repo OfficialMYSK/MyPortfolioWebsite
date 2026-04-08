@@ -125,7 +125,6 @@ export function DeepNarrativeExperience() {
   const displaceX2 = useTransform(smoothMouseX, [0, windowSize.width], [-40, 40])
   const displaceY2 = useTransform(smoothMouseY, [0, windowSize.height], [-40, 40])
   const displaceX3 = useTransform(smoothMouseX, [0, windowSize.width], [25, -25])
-  const displaceY3 = useTransform(smoothMouseY, [0, windowSize.height], [-25, 25])
   const displaceX4 = useTransform(smoothMouseX, [0, windowSize.width], [-35, 35])
 
   const rotateX = useTransform(smoothMouseY, [0, windowSize.height], [15, -15])
