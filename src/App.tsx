@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react"
 import { CinematicLoader } from "@/components/layout/CinematicLoader"
 import { CinematicHero } from "@/components/sections/CinematicHero"
 import { TransitionDive } from "@/components/sections/TransitionDive"
@@ -5,11 +6,40 @@ import { DeepNarrativeExperience } from "@/components/sections/DeepNarrativeExpe
 import { CinematicFooter } from "@/components/sections/CinematicFooter"
 import { SettingsProvider } from "@/context/SettingsContext"
 import { SettingsMenu } from "@/components/ui/SettingsMenu"
+import { ProjectsPage } from "@/components/pages/ProjectsPage"
 
 function App() {
+  const [currentPage, setCurrentPage] = useState<'home' | 'projects'>('home')
+
+  const previousPage = useRef<'home' | 'projects'>('home')
+
+  useEffect(() => {
+    if (currentPage === 'home' && previousPage.current === 'projects') {
+      // Returning to home from projects, send user to the footer!
+      setTimeout(() => {
+        window.scrollTo({ left: 0, top: document.body.scrollHeight, behavior: 'instant' });
+      }, 50);
+    } else if (currentPage === 'projects') {
+      // We don't necessarily need to scroll to top just for projects because it's absolute, 
+      // but if we do, it won't hurt. However, keeping the body where it was helps!
+    } else if (currentPage === 'home' && previousPage.current === 'home') {
+       window.scrollTo(0, 0); // Initial mount
+    }
+    previousPage.current = currentPage;
+  }, [currentPage]);
+
   return (
     <SettingsProvider>
-      <div id="scroll-root" className="w-full relative bg-[#000000] text-white selection:bg-primary/30 selection:text-white">
+      {/* 
+        We keep the main app mounted at all times to prevent complex WebGL/scroll 
+        hooks from crashing the app upon unmount.
+      */}
+      <div 
+        id="scroll-root" 
+        className={`w-full relative bg-[#000000] text-white selection:bg-primary/30 selection:text-white ${
+          currentPage === 'projects' ? 'h-screen overflow-hidden pointer-events-none' : ''
+        }`}
+      >
         <CinematicLoader />
         <SettingsMenu />
 
@@ -27,11 +57,15 @@ function App() {
           </div>
         </main>
 
-        {/* Empty scroll space buffer to create the same pacing void before the footer appears */}
-        <div className="w-full h-[75vh] bg-[#000000] pointer-events-none" />
+          {/* Empty scroll space buffer to create the same pacing void before the footer appears */}
+          <div className="w-full h-[75vh] bg-[#000000] pointer-events-none" />
 
-        <CinematicFooter />
+          <CinematicFooter onNavigateToProjects={() => setCurrentPage('projects')} />
       </div>
+
+      {currentPage === 'projects' && (
+        <ProjectsPage onBack={() => setCurrentPage('home')} />
+      )}
     </SettingsProvider>
   )
 }

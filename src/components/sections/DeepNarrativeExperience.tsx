@@ -63,10 +63,9 @@ function ParallaxDepthLayer({ particles, speed, smoothScroll, zIndex }: any) {
 function PlaceholderImageSet({ smoothScroll, triggers, images, zIndex = 0 }: any) {
   const opacity = useTransform(smoothScroll, triggers.pos, triggers.opacity)
   const scale = useTransform(smoothScroll, triggers.pos, triggers.scale)
-  const filter = useTransform(smoothScroll, triggers.pos, triggers.filter)
 
   return (
-    <motion.div style={{ opacity, scale, filter, zIndex }} className="absolute inset-0 pointer-events-none flex items-center justify-center -translate-y-[5%]">
+    <motion.div style={{ opacity, scale, zIndex }} className="absolute inset-0 pointer-events-none flex items-center justify-center -translate-y-[5%]">
       {images.map((img: any, i: number) => (
         <motion.img
           key={i}
@@ -174,11 +173,10 @@ export function DeepNarrativeExperience() {
     pos: t0,
     opacity: [0, 0.4, 0.4, 0],
     scale: [0.5, 0.8, 0.8, 0.4],
-    filter: ["blur(15px)", "blur(4px)", "blur(4px)", "blur(15px)"],
     images: [
       { src: "/images/main-page/section 1/abstract sketch.jpg", className: "w-32 h-32 md:w-52 md:h-52", style: { left: "15%", top: "25%" }, animate: { y: [-15, 15, -15] }, transition: { duration: 8 } },
       { src: "/images/main-page/section 1/handwritten note  idea fragment.png", className: "w-40 h-40 md:w-60 md:h-60", style: { right: "20%", top: "30%" }, animate: { y: [15, -15, 15] }, transition: { duration: 10 } },
-      { src: "/images/main-page/section 1/blurred photo of a previous project.png", className: "w-24 h-24 md:w-48 md:h-48", style: { left: "25%", bottom: "25%" }, animate: { y: [-20, 20, -20] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 1/blurred photo of a previous project.jpeg", className: "w-24 h-24 md:w-48 md:h-48", style: { left: "25%", bottom: "25%" }, animate: { y: [-20, 20, -20] }, transition: { duration: 12 } },
       { src: "/images/main-page/section 1/mood-like image.jpg", className: "w-48 h-48 md:w-64 md:h-64", style: { right: "25%", bottom: "20%" }, animate: { y: [10, -10, 10] }, transition: { duration: 9 } }
     ]
   }
@@ -187,13 +185,12 @@ export function DeepNarrativeExperience() {
     pos: t1,
     opacity: [0.001, 0.4, 0.4, 0.001],
     scale: [0.6, 0.9, 0.9, 0.5],
-    filter: ["blur(4px)", "blur(0px)", "blur(0px)", "blur(4px)"],
     images: [
       { src: "/images/main-page/section 2/messy prototype.jpeg", className: "w-32 h-32 md:w-40 md:h-40", style: { left: "8%", top: "15%", transform: "rotate(-4deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 8 } },
       { src: "/images/main-page/section 2/code snippet.png", className: "w-48 h-48 md:w-56 md:h-56", style: { right: "12%", top: "10%", transform: "rotate(3deg)" }, animate: { y: [5, -5, 5] }, transition: { duration: 9 } },
       { src: "/images/main-page/section 2/rough physical build.jpg", className: "w-36 h-36 md:w-44 md:h-44", style: { left: "20%", bottom: "10%", transform: "rotate(5deg)" }, animate: { y: [-8, 8, -8] }, transition: { duration: 7 } },
       { src: "/images/main-page/section 2/iteration sketch.jpg", className: "w-56 h-56 md:w-64 md:h-64", style: { right: "18%", bottom: "5%", transform: "rotate(-2deg)" }, animate: { y: [8, -8, 8] }, transition: { duration: 10 } },
-      { src: "/images/main-page/section 2/test setup photo.jpg", className: "w-24 h-24 md:w-32 md:h-32", style: { left: "40%", top: "5%", transform: "rotate(-5deg)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 6 } },
+      { src: "/images/main-page/section 2/test setup photo.jpeg", className: "w-24 h-24 md:w-32 md:h-32", style: { left: "40%", top: "5%", transform: "rotate(-5deg)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 6 } },
       { src: "/images/main-page/section 2/failure  in-progress moment.jpeg", className: "w-32 h-32 md:w-40 md:h-40", style: { right: "40%", top: "40%", transform: "rotate(4deg)" }, animate: { y: [6, -6, 6] }, transition: { duration: 8 } },
       { src: "/images/main-page/section 2/second messy prototype or different angle.jpg", className: "w-40 h-40 md:w-48 md:h-48", style: { left: "5%", top: "60%", transform: "rotate(-3deg)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 11 } }
     ]
@@ -205,9 +202,8 @@ export function DeepNarrativeExperience() {
     pos: t2,
     opacity: [0, 0.8, 0.8, 0],
     scale: [0.7, 1, 1, 0.8],
-    filter: ["blur(12px)", "blur(0px)", "blur(0px)", "blur(10px)"],
     images: [
-      { src: "/images/main-page/section 4/experience-focused project.png", className: "w-[22rem] h-auto md:w-[32rem] md:h-auto", style: { left: "8%", top: "35%" }, animate: { y: [-3, 3, -3] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 4/experience-focused project.jpeg", className: "w-[22rem] h-auto md:w-[32rem] md:h-auto", style: { left: "8%", top: "35%" }, animate: { y: [-3, 3, -3] }, transition: { duration: 12 } },
       { src: "/images/main-page/section 4/experience-focused project 2.png", className: "w-[20rem] h-auto md:w-[28rem] md:h-auto", style: { right: "12%", bottom: "25%" }, animate: { y: [3, -3, 3] }, transition: { duration: 14 } }
     ]
   }
@@ -216,7 +212,6 @@ export function DeepNarrativeExperience() {
     pos: t3,
     opacity: [0, 0.9, 0.9, 0],
     scale: [0.8, 1.1, 1.1, 0.8],
-    filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
     images: [
       { src: "/images/main-page/section 5/Arcade Box (main visual).jpg", className: "w-[22rem] h-auto md:w-[32rem] md:h-auto", style: { left: "10%", top: "30%" }, animate: { y: [-15, 15, -15], rotate: [-2, 2, -2] }, transition: { duration: 6 } },
       { src: "/images/main-page/section 5/second angle or detail of Arcade Box.jpg", className: "w-[20rem] h-auto md:w-[28rem] md:h-auto", style: { right: "12%", top: "25%" }, animate: { y: [10, -10, 10], rotate: [2, -2, 2] }, transition: { duration: 7 } },
@@ -228,12 +223,11 @@ export function DeepNarrativeExperience() {
     pos: t4,
     opacity: [0, 0.95, 0.95, 0],
     scale: [0.9, 1.2, 1.2, 0.9],
-    filter: ["blur(15px)", "blur(0px)", "blur(0px)", "blur(20px)"],
     images: [
       { src: "/images/main-page/section 6/Knibbel project.png", className: "w-72 h-72 md:w-96 md:h-96 opacity-90", style: { left: "10%", top: "20%", transform: "translateZ(-100px)" }, animate: { y: [-20, 20, -20] }, transition: { duration: 15 } },
       { src: "/images/main-page/section 6/Tinker Imageneers.png", className: "w-[20rem] h-auto md:w-[32rem] md:h-auto opacity-100", style: { right: "10%", top: "60%", transform: "translateZ(50px)" }, animate: { y: [15, -15, 15] }, transition: { duration: 12 } },
       { src: "/images/main-page/section 6/wide shot of an experience  installation.png", className: "w-48 h-48 md:w-64 md:h-64 opacity-80", style: { left: "35%", bottom: "15%", transform: "translateZ(-50px)" }, animate: { y: [-10, 10, -10] }, transition: { duration: 10 } },
-      { src: "/images/main-page/section 6/detail shot that adds atmosphere.png", className: "w-80 h-80 md:w-[28rem] md:h-[28rem] opacity-70", style: { right: "25%", top: "10%", transform: "translateZ(-150px)" }, animate: { y: [25, -25, 25] }, transition: { duration: 20 } }
+      { src: "/images/main-page/section 6/detail shot that adds atmosphere.jpeg", className: "w-80 h-80 md:w-[28rem] md:h-[28rem] opacity-70", style: { right: "25%", top: "10%", transform: "translateZ(-150px)" }, animate: { y: [25, -25, 25] }, transition: { duration: 20 } }
     ]
   }
 
@@ -241,10 +235,9 @@ export function DeepNarrativeExperience() {
     pos: t5,
     opacity: [0, 1, 1, 0],
     scale: [0.8, 1.1, 1.1, 0.9],
-    filter: ["blur(10px)", "blur(0px)", "blur(0px)", "blur(15px)"],
     images: [
-      { src: "/images/main-page/section 7/strongest visual design Poster.png", className: "w-80 h-auto md:w-[26rem] md:h-auto", style: { left: "10%", top: "20%", transform: "translateY(-50%)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 12 } },
-      { src: "/images/main-page/section 7/strongest visual design ORIGO.png", className: "w-72 h-72 md:w-[24rem] md:h-[24rem]", style: { right: "15%", top: "25%", transform: "translateY(-50%)" }, animate: { y: [5, -5, 5] }, transition: { duration: 14 } }
+      { src: "/images/main-page/section 7/strongest visual design Poster.jpeg", className: "w-80 h-auto md:w-[26rem] md:h-auto", style: { left: "10%", top: "20%", transform: "translateY(-50%)" }, animate: { y: [-5, 5, -5] }, transition: { duration: 12 } },
+      { src: "/images/main-page/section 7/strongest visual design ORIGO.jpeg", className: "w-72 h-72 md:w-[24rem] md:h-[24rem]", style: { right: "15%", top: "25%", transform: "translateY(-50%)" }, animate: { y: [5, -5, 5] }, transition: { duration: 14 } }
     ]
   }
 
@@ -252,7 +245,6 @@ export function DeepNarrativeExperience() {
     pos: t6,
     opacity: [0, 1, 1, 1],
     scale: [0.9, 1.5, 1.5, 1.5],
-    filter: ["blur(20px)", "blur(0px)", "blur(0px)", "blur(0px)"],
     images: [
       { src: "/images/main-page/section 8/your single strongest image overall.png", className: "w-[32rem] h-auto md:w-[56rem] md:h-auto", style: { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }, animate: {}, transition: {} },
     ]

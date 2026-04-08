@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 interface HLSVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string
   playbackRate?: number
+  volume?: number
 }
 
 export function HLSVideo({ src, className, ...props }: HLSVideoProps) {
@@ -28,12 +29,36 @@ export function HLSVideo({ src, className, ...props }: HLSVideoProps) {
       video.playbackRate = props.playbackRate;
     }
 
+    if (props.volume !== undefined) {
+      video.volume = props.volume;
+    }
+
     return () => {
       if (hls) {
         hls.destroy()
       }
     }
   }, [src])
+
+  // Sync muted and volume dynamically to the DOM element
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (props.muted !== undefined) {
+      video.muted = props.muted;
+    }
+    
+    if (props.volume !== undefined) {
+      video.volume = props.volume;
+    }
+
+    // When unmuting, some browsers may pause the video if it changed playback policies.
+    // So we attempt to resume playback if it's paused.
+    if (!props.muted && video.paused) {
+      video.play().catch(e => console.warn("HLSVideo play prevented:", e));
+    }
+  }, [props.muted, props.volume])
 
   if (!src) {
     return <div className={cn("bg-slate-900 object-cover", className)} />

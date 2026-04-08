@@ -3,20 +3,23 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react';
 type SettingsContextType = {
   isSoundEnabled: boolean;
   setIsSoundEnabled: (enabled: boolean) => void;
+  pauseMainAudio: boolean;
+  setPauseMainAudio: (pause: boolean) => void;
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
+  const [pauseMainAudio, setPauseMainAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Sync state to audio element gracefully
   useEffect(() => {
     if (!audioRef.current) return;
 
-    if (isSoundEnabled) {
-      audioRef.current.volume = 0.3; // Gentle mix volume
+    if (isSoundEnabled && !pauseMainAudio) {
+      audioRef.current.volume = 1.0; // 100% volume
       // A promise is returned by play(), catch handles edge cases where browser native policies block it early
       audioRef.current.play().catch(e => {
         console.warn("Audio play prevented by browser:", e);
@@ -26,10 +29,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     } else {
       audioRef.current.pause();
     }
-  }, [isSoundEnabled]);
+  }, [isSoundEnabled, pauseMainAudio]);
 
   return (
-    <SettingsContext.Provider value={{ isSoundEnabled, setIsSoundEnabled }}>
+    <SettingsContext.Provider value={{ isSoundEnabled, setIsSoundEnabled, pauseMainAudio, setPauseMainAudio }}>
       {children}
       {/* 
         Explicitly mounting the audio tag in the DOM is infinitely more stable 

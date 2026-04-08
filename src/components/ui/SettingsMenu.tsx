@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import { useSettings } from '@/context/SettingsContext';
 
-export function SettingsMenu() {
+export function SettingsMenu({ hideAudio = false }: { hideAudio?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const { isSoundEnabled, setIsSoundEnabled } = useSettings();
 
@@ -39,17 +39,19 @@ export function SettingsMenu() {
             className="flex flex-col gap-3 min-w-[220px]"
           >
             {/* Sound Toggle */}
-            <button
-              onClick={() => setIsSoundEnabled(!isSoundEnabled)}
-              className="bio-glass px-4 py-3 rounded-xl flex items-center gap-3 text-cyan-100 hover:text-white hover:bg-cyan-900/30 transition-colors w-full text-left"
-            >
-              <div className="w-6 flex justify-center">
-                {isSoundEnabled ? <Volume2 className="w-5 h-5 text-cyan-400" /> : <VolumeX className="w-5 h-5 text-gray-500" />}
-              </div>
-              <span className="text-sm font-medium tracking-wide">
-                Sound: <span className={isSoundEnabled ? "text-cyan-300" : "text-gray-500"}>{isSoundEnabled ? 'ON' : 'OFF'}</span>
-              </span>
-            </button>
+            {!hideAudio && (
+              <button
+                onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+                className="bio-glass px-4 py-3 rounded-xl flex items-center gap-3 text-cyan-100 hover:text-white hover:bg-cyan-900/30 transition-colors w-full text-left"
+              >
+                <div className="w-6 flex justify-center">
+                  {isSoundEnabled ? <Volume2 className="w-5 h-5 text-cyan-400" /> : <VolumeX className="w-5 h-5 text-gray-500" />}
+                </div>
+                <span className="text-sm font-medium tracking-wide">
+                  Sound: <span className={isSoundEnabled ? "text-cyan-300" : "text-gray-500"}>{isSoundEnabled ? 'ON' : 'OFF'}</span>
+                </span>
+              </button>
+            )}
 
             {/* Reset Experience */}
             <button
