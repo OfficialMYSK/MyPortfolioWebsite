@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Volume2, VolumeX, RotateCcw } from 'lucide-react';
+import { Settings, Volume2, VolumeX, RotateCcw, Zap, ZapOff } from 'lucide-react';
 import { useSettings } from '@/context/SettingsContext';
 
 export function SettingsMenu({ hideAudio = false }: { hideAudio?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { isSoundEnabled, setIsSoundEnabled } = useSettings();
+  const { isSoundEnabled, setIsSoundEnabled, forcePerformance, setForcePerformance } = useSettings();
 
   const handleReset = () => {
     // Force the browser to discard its saved scroll history position
@@ -52,6 +52,19 @@ export function SettingsMenu({ hideAudio = false }: { hideAudio?: boolean }) {
                 </span>
               </button>
             )}
+
+            {/* Performance Mode Toggle */}
+            <button
+              onClick={() => setForcePerformance(!forcePerformance)}
+              className="bio-glass px-4 py-3 rounded-xl flex items-center gap-3 text-cyan-100 hover:text-white hover:bg-cyan-900/30 transition-colors w-full text-left"
+            >
+              <div className="w-6 flex justify-center">
+                {forcePerformance ? <Zap className="w-5 h-5 text-yellow-400" /> : <ZapOff className="w-5 h-5 text-gray-500" />}
+              </div>
+              <span className="text-sm font-medium tracking-wide">
+                Performance Mode: <span className={forcePerformance ? "text-yellow-400" : "text-gray-500"}>{forcePerformance ? 'ON' : 'OFF'}</span>
+              </span>
+            </button>
 
             {/* Reset Experience */}
             <button

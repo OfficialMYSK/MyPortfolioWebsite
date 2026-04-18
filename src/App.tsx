@@ -23,7 +23,7 @@ function App() {
       // We don't necessarily need to scroll to top just for projects because it's absolute, 
       // but if we do, it won't hurt. However, keeping the body where it was helps!
     } else if (currentPage === 'home' && previousPage.current === 'home') {
-       window.scrollTo(0, 0); // Initial mount
+      window.scrollTo(0, 0); // Initial mount
     }
     previousPage.current = currentPage;
   }, [currentPage]);
@@ -34,11 +34,10 @@ function App() {
         We keep the main app mounted at all times to prevent complex WebGL/scroll 
         hooks from crashing the app upon unmount.
       */}
-      <div 
-        id="scroll-root" 
-        className={`w-full relative bg-[#000000] text-white selection:bg-primary/30 selection:text-white ${
-          currentPage === 'projects' ? 'h-screen overflow-hidden pointer-events-none' : ''
-        }`}
+      <div
+        id="scroll-root"
+        className={`w-full relative bg-[#000000] text-white selection:bg-primary/30 selection:text-white ${currentPage === 'projects' ? 'h-screen overflow-hidden pointer-events-none' : ''
+          }`}
       >
         <CinematicLoader />
         <SettingsMenu />
@@ -57,10 +56,10 @@ function App() {
           </div>
         </main>
 
-          {/* Empty scroll space buffer to create the same pacing void before the footer appears */}
-          <div className="w-full h-[75vh] bg-[#000000] pointer-events-none" />
+        {/* Empty scroll space buffer to create the same pacing void before the footer appears */}
+        <div className="w-full h-[75vh] bg-[#000000] pointer-events-none" />
 
-          <CinematicFooter onNavigateToProjects={() => setCurrentPage('projects')} />
+        <CinematicFooter onNavigateToProjects={() => setCurrentPage('projects')} />
       </div>
 
       {currentPage === 'projects' && (

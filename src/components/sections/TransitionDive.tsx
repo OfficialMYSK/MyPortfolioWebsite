@@ -1,7 +1,6 @@
-import { motion, useScroll, useTransform } from "framer-motion"
-import { HLSVideo } from "@/components/ui/hls-video"
+import { motion, useScroll, useTransform, useInView } from "framer-motion"
 import { ChevronDown } from "lucide-react"
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
 
 export function TransitionDive() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -10,6 +9,19 @@ export function TransitionDive() {
     target: sectionRef,
     offset: ["start end", "end start"]
   })
+
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const isVideoInView = useInView(videoRef, { margin: "200px" })
+
+  useEffect(() => {
+    if (videoRef.current) {
+      if (isVideoInView) {
+        videoRef.current.play().catch(e => console.warn("Video play prevented:", e))
+      } else {
+        videoRef.current.pause()
+      }
+    }
+  }, [isVideoInView])
 
   // Reduce translation (+15%) to allow zooming out the video without showing edges
   const yParallax = useTransform(scrollYProgress, [0, 1], ["-5%", "10%"])
@@ -25,13 +37,12 @@ export function TransitionDive() {
         style={{ WebkitMaskImage: "linear-gradient(to bottom, black 40%, transparent 100%)", maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)" }}
       >
         <motion.div style={{ y: yParallax, scale: 1.15 }} className="absolute inset-0 origin-center">
-          <HLSVideo 
-            src="https://stream.mux.com/8GqupEcC56GKowG4BPQYvmc5p5R2AQ1WKOO9zpuhoBM.m3u8"
-            autoPlay 
+          <video 
+            ref={videoRef}
+            src="/videos/DepthTransitionVideo.webm"
             loop 
             muted 
             playsInline
-            playbackRate={0.6}
             className="w-full h-full object-cover"
           />
         </motion.div>

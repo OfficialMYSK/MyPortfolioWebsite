@@ -1,9 +1,27 @@
 import { motion } from "framer-motion"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Smartphone } from "lucide-react"
 import { useState, useEffect } from "react"
 import { HLSVideo } from "@/components/ui/hls-video"
 import { SettingsMenu } from "@/components/ui/SettingsMenu"
 import { useSettings } from "@/context/SettingsContext"
+import { usePerformanceMode } from "@/hooks/use-performance-mode"
+import { useIsMobile } from "@/hooks/use-is-mobile"
+
+// Mathematically estimated zones based on intrinsic image coordinates.
+// Tip: You now have access to true 3D rotation! 
+// - rotateY: turns the TV left/right (perspective)
+// - rotateX: tilts the TV forward/backward
+// - rotateZ: tilts the TV sideways (like a steering wheel)
+export const interactiveZones = [
+  { id: 'tv-1-left', left: '16%', top: '39%', width: '17%', height: '18.5%', label: 'Project 1', pdfPath: '/documents/Project Folders/TilburgProject.pdf', imagePath: '/images/main-page/section 4/experience-focused project.webp', rotateZ: '-22deg', rotateY: '30deg', rotateX: '10deg' },
+  { id: 'tv-2-fern', left: '32.5%', top: '62.5%', width: '16%', height: '16%', label: 'Project 2', pdfPath: '/documents/Project Folders/TinkerImageneers.pdf', imagePath: '/images/main-page/section 6/wide shot of an experience  installation.webp', rotateZ: '-11deg', rotateY: '25deg', rotateX: '-16deg' },
+  { id: 'tv-3-green', left: '44.5%', top: '51.5%', width: '6%', height: '11%', label: 'Project 3', pdfPath: '/documents/Project Folders/NFC RFID.pdf', imagePath: '/images/main-page/section 2/messy prototype.webp', rotateZ: '-5deg', rotateY: '20deg', rotateX: '-22deg' },
+  { id: 'tv-4-midwhite', left: '41%', top: '33%', width: '6%', height: '9.5%', label: 'Project 4', pdfPath: '/documents/Project Folders/Discursive Worlding.pdf', imagePath: '/images/main-page/section 8/your single strongest image overall.webp', rotateZ: '2deg', rotateY: '-25deg', rotateX: '-9deg' },
+  { id: 'tv-5-tilted', left: '50.75%', top: '42%', width: '7%', height: '8.5%', label: 'Project 5', pdfPath: '/documents/Project Folders/Poster.pdf', imagePath: '/images/main-page/section 7/strongest visual design Poster.webp', rotateImage: true, rotateZ: '54deg', rotateY: '5deg', rotateX: '30deg' },
+  { id: 'tv-6-large-right', left: '57%', top: '50%', width: '19.5%', height: '26%', label: 'Project 6', pdfPath: '/documents/Project Folders/ArcadeBox.pdf', imagePath: '/images/main-page/section 5/Arcade Box (main visual).webp', rotateZ: '12deg', rotateY: '-38deg', rotateX: '-11deg' },
+  { id: 'tv-7-testbars', left: '59%', top: '30%', width: '7%', height: '8%', label: 'Project 7', rotateZ: '10deg', rotateY: '-10deg', rotateX: '0deg' },
+  { id: 'tv-8-far-right', left: '81.25%', top: '40.25%', width: '10%', height: '11.5%', label: 'Project 8', pdfPath: '/documents/Project Folders/Brand ORIGO.pdf', imagePath: '/images/main-page/section 7/strongest visual design ORIGO.webp', rotateZ: '21deg', rotateY: '7deg', rotateX: '-35deg' },
+]
 
 interface ProjectsPageProps {
   onBack: () => void
@@ -11,32 +29,51 @@ interface ProjectsPageProps {
 
 export function ProjectsPage({ onBack }: ProjectsPageProps) {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null)
+  const [activeZone, setActiveZone] = useState<string | null>(null)
   const { setPauseMainAudio, isSoundEnabled } = useSettings()
+  const isPerformanceMode = usePerformanceMode()
 
   useEffect(() => {
     setPauseMainAudio(true);
     return () => setPauseMainAudio(false);
   }, [setPauseMainAudio]);
 
-  // Mathematically estimated zones based on intrinsic image coordinates.
-  // Mathematically estimated zones based on intrinsic image coordinates.
-  // Tip: You now have access to true 3D rotation! 
-  // - rotateY: turns the TV left/right (perspective)
-  // - rotateX: tilts the TV forward/backward
-  // - rotateZ: tilts the TV sideways (like a steering wheel)
-  const interactiveZones = [
-    { id: 'tv-1-left', left: '16%', top: '39%', width: '17%', height: '18.5%', label: 'Project 1', pdfPath: '/documents/Project Folders/TilburgProject.pdf', imagePath: '/images/main-page/section 4/experience-focused project.jpeg', rotateZ: '-22deg', rotateY: '30deg', rotateX: '10deg' },
-    { id: 'tv-2-fern', left: '32.5%', top: '62.5%', width: '16%', height: '16%', label: 'Project 2', pdfPath: '/documents/Project Folders/TinkerImageneers.pdf', imagePath: '/images/main-page/section 6/wide shot of an experience  installation.png', rotateZ: '-11deg', rotateY: '25deg', rotateX: '-16deg' },
-    { id: 'tv-3-green', left: '44.5%', top: '51.5%', width: '6%', height: '11%', label: 'Project 3', pdfPath: '/documents/Project Folders/NFC RFID.pdf', imagePath: '/images/main-page/section 2/messy prototype.jpeg', rotateZ: '-5deg', rotateY: '20deg', rotateX: '-22deg' },
-    { id: 'tv-4-midwhite', left: '41%', top: '33%', width: '6%', height: '9.5%', label: 'Project 4', pdfPath: '/documents/Project Folders/Discursive Worlding.pdf', imagePath: '/images/main-page/section 8/your single strongest image overall.png', rotateZ: '2deg', rotateY: '-25deg', rotateX: '-9deg' },
-    { id: 'tv-5-tilted', left: '50.75%', top: '42%', width: '7%', height: '8.5%', label: 'Project 5', pdfPath: '/documents/Project Folders/Poster.pdf', imagePath: '/images/main-page/section 7/strongest visual design Poster.jpeg', rotateImage: true, rotateZ: '54deg', rotateY: '5deg', rotateX: '30deg' },
-    { id: 'tv-6-large-right', left: '57%', top: '50%', width: '19.5%', height: '26%', label: 'Project 6', pdfPath: '/documents/Project Folders/ArcadeBox.pdf', imagePath: '/images/main-page/section 5/Arcade Box (main visual).jpg', rotateZ: '12deg', rotateY: '-38deg', rotateX: '-11deg' },
-    { id: 'tv-7-testbars', left: '59%', top: '30%', width: '7%', height: '8%', label: 'Project 7', rotateZ: '10deg', rotateY: '-10deg', rotateX: '0deg' },
-    { id: 'tv-8-far-right', left: '81.25%', top: '40.25%', width: '10%', height: '11.5%', label: 'Project 8', pdfPath: '/documents/Project Folders/Brand ORIGO.pdf', imagePath: '/images/main-page/section 7/strongest visual design ORIGO.jpeg', rotateZ: '21deg', rotateY: '7deg', rotateX: '-35deg' },
-  ]
+  const [showRotatePrompt, setShowRotatePrompt] = useState(false)
+  const isNarrowViewport = useIsMobile(850)
+  const [isLatchedMobile, setIsLatchedMobile] = useState(false)
+
+  useEffect(() => {
+    // If the device is ever detected as a narrow viewport (mobile), latch it permanently to true.
+    if (isNarrowViewport && !isLatchedMobile) {
+      setIsLatchedMobile(true)
+    }
+
+    const checkOrientation = () => {
+      const isPortrait = window.innerHeight > window.innerWidth;
+      const isMobileSized = window.innerWidth <= 850 || window.innerHeight <= 850;
+      setShowRotatePrompt(isPortrait && isMobileSized);
+    };
+
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    return () => window.removeEventListener('resize', checkOrientation);
+  }, [isNarrowViewport, isLatchedMobile]);
 
   return (
     <div className="fixed inset-0 z-[99999] w-screen h-[100dvh] overflow-hidden bg-black flex items-center justify-center pointer-events-auto">
+
+      {/* Landscape Lock Overlay */}
+      {showRotatePrompt && (
+        <div className="absolute inset-0 z-[100000] bg-black flex flex-col items-center justify-center text-white p-6 pointer-events-auto">
+          <Smartphone className="w-16 h-16 animate-pulse mb-6 rotate-90 opacity-80" />
+          <h2 className="text-3xl md:text-4xl font-heading text-center mb-4 text-white uppercase tracking-wider drop-shadow-xl [text-shadow:0_0_15px_rgba(0,255,255,0.3)]">
+            Rotate Device
+          </h2>
+          <p className="opacity-70 text-center max-w-[320px] text-sm md:text-base leading-relaxed tracking-wide">
+            This immersive gallery requires a landscape orientation to view correctly. Please turn your phone sideways.
+          </p>
+        </div>
+      )}
 
       {/* Title & Hint */}
       <div className="absolute top-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center pointer-events-none drop-shadow-2xl text-center w-full">
@@ -44,7 +81,7 @@ export function ProjectsPage({ onBack }: ProjectsPageProps) {
           Projects
         </h1>
         <p className="text-white/60 font-body text-xs md:text-sm tracking-[0.3em] uppercase">
-          Hover over the CRT TVs
+          {isLatchedMobile ? "Tap CRT TVs to preview, tap again to view" : "Hover over the CRT TVs"}
         </p>
       </div>
 
@@ -88,15 +125,22 @@ export function ProjectsPage({ onBack }: ProjectsPageProps) {
             }}
           >
             <button
-              className="w-full h-full rounded-xl border-2 border-white/0 hover:border-white/50 bg-white/0 transition-all duration-300 cursor-pointer group flex items-center justify-center pointer-events-auto transform hover:scale-[1.02] relative overflow-hidden"
-              onClick={() => {
+              className={`w-full h-full rounded-xl border-2 transition-all duration-300 cursor-pointer group flex items-center justify-center pointer-events-auto transform hover:scale-[1.02] relative overflow-hidden ${isLatchedMobile && activeZone === zone.id ? 'border-white/50 bg-black/20' : 'border-white/0 hover:border-white/50 bg-white/0'}`}
+              onClick={(e) => {
+                if (isLatchedMobile) {
+                  if (activeZone !== zone.id) {
+                    e.preventDefault()
+                    setActiveZone(zone.id)
+                    return
+                  }
+                }
                 if (zone.pdfPath) {
                   window.open(zone.pdfPath, '_blank');
                 }
               }}
             >
               {zone.imagePath ? (
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex items-center justify-center">
+                <div className={`absolute inset-0 transition-opacity duration-300 pointer-events-none flex items-center justify-center ${isLatchedMobile && activeZone === zone.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                   <img
                     src={zone.imagePath}
                     alt={zone.label}
@@ -145,15 +189,17 @@ export function ProjectsPage({ onBack }: ProjectsPageProps) {
       />
 
       {/* Secondary Ambient Projects Audio Stream (hidden, 100% volume) */}
-      <HLSVideo
-        src="https://stream.mux.com/QzHcAGBnqTgcj6VKfuW02G94EGeMIcWHjxqPnOY601rwE.m3u8"
-        autoPlay
-        loop
-        muted={!isSoundEnabled}
-        playsInline
-        volume={1.0}
-        className="hidden"
-      />
+      {!isPerformanceMode && (
+        <HLSVideo
+          src="https://stream.mux.com/QzHcAGBnqTgcj6VKfuW02G94EGeMIcWHjxqPnOY601rwE.m3u8"
+          autoPlay
+          loop
+          muted={!isSoundEnabled}
+          playsInline
+          volume={1.0}
+          className="hidden"
+        />
+      )}
     </div>
   )
 }

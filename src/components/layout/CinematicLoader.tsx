@@ -40,6 +40,21 @@ export function CinematicLoader() {
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="flex flex-col items-center text-center z-10 w-full"
           >
+            {/* Performance Tip on Left (Middle of VH) */}
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.5, duration: 1 }}
+              className="absolute left-6 top-1/2 -translate-y-1/2 md:left-12 max-w-[250px] text-left z-20 pointer-events-auto"
+            >
+              <h3 className="text-white/70 font-mono text-[10px] uppercase tracking-[0.2em] mb-2 border-b border-white/20 pb-2 inline-block">
+                Pro Tip
+              </h3>
+              <p className="text-white/50 font-body text-[11px] leading-relaxed tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                Turn on <span className="text-white/80 font-medium">Performance Mode</span> (Settings menu) if on mobile or a slower device. For the full cinematic experience, please keep it disabled on devices that can handle it.
+              </p>
+            </motion.div>
+
             <div className="h-[66vh] aspect-video mb-12">
               <HLSVideo 
                 src="https://stream.mux.com/P00XBGhMZClbke6XtUxmMFJe702aHKkQML7jN1AD8gi02U.m3u8"

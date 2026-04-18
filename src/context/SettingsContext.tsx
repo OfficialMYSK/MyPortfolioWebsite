@@ -5,6 +5,8 @@ type SettingsContextType = {
   setIsSoundEnabled: (enabled: boolean) => void;
   pauseMainAudio: boolean;
   setPauseMainAudio: (pause: boolean) => void;
+  forcePerformance: boolean;
+  setForcePerformance: (force: boolean) => void;
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -12,6 +14,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [pauseMainAudio, setPauseMainAudio] = useState(false);
+  const [forcePerformance, setForcePerformance] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Sync state to audio element gracefully
@@ -32,7 +35,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   }, [isSoundEnabled, pauseMainAudio]);
 
   return (
-    <SettingsContext.Provider value={{ isSoundEnabled, setIsSoundEnabled, pauseMainAudio, setPauseMainAudio }}>
+    <SettingsContext.Provider value={{ isSoundEnabled, setIsSoundEnabled, pauseMainAudio, setPauseMainAudio, forcePerformance, setForcePerformance }}>
       {children}
       {/* 
         Explicitly mounting the audio tag in the DOM is infinitely more stable 

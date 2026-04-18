@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useInView } from 'framer-motion'
 import Hls from 'hls.js'
 import { cn } from '@/lib/utils'
 
@@ -10,6 +11,7 @@ interface HLSVideoProps extends React.VideoHTMLAttributes<HTMLVideoElement> {
 
 export function HLSVideo({ src, className, ...props }: HLSVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const isInView = useInView(videoRef, { margin: "200px" })
 
   useEffect(() => {
     const video = videoRef.current
@@ -53,12 +55,26 @@ export function HLSVideo({ src, className, ...props }: HLSVideoProps) {
       video.volume = props.volume;
     }
 
-    // When unmuting, some browsers may pause the video if it changed playback policies.
-    // So we attempt to resume playback if it's paused.
-    if (!props.muted && video.paused) {
+    if (isInView && !props.muted && video.paused && props.autoPlay) {
       video.play().catch(e => console.warn("HLSVideo play prevented:", e));
     }
-  }, [props.muted, props.volume])
+  }, [props.muted, props.volume, isInView, props.autoPlay])
+
+  // Play / Pause based on view intersection
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !props.autoPlay) return;
+
+    if (isInView) {
+      if (video.paused) {
+        video.play().catch(e => console.warn("InView play prevented:", e));
+      }
+    } else {
+      if (!video.paused) {
+        video.pause();
+      }
+    }
+  }, [isInView, props.autoPlay]);
 
   if (!src) {
     return <div className={cn("bg-slate-900 object-cover", className)} />
